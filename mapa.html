@@ -1,0 +1,834 @@
+<html lang="es"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de EESS e Instituciones Educativas - Estadística - DIRIS Lima Centro</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  
+
+
+
+
+ <!-- ESTILOS -->
+
+  <link rel="stylesheet" href="styles/styles.css">
+
+
+
+
+
+  <!-- Google tag (gtag.js) -->
+  <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-L6BQXE1L02"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-L6BQXE1L02');
+  </script>
+</head>
+<body class="">
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="topbar-left">
+          
+        </div>
+        
+        <div class="topbar-center">
+          <h1>RIS 1 </h1>
+          
+        </div>
+
+        <div class="topbar-center">
+          <h1>Mapa de Establecimientos de Salud e Instituciones Educativas</h1>
+          <p>Jurisdicción de la Dirección de Redes Integradas de Salud Lima Centro</p>
+        </div>
+
+        <div class="topbar-right">
+         
+        </div>
+      </div>
+    </header>
+
+    <main class="content-wrapper">
+      <aside class="sidebar">
+        <h3>Filtros de consulta</h3>
+
+        <div class="sidebar-section">
+          <span class="sidebar-section-title">Red Integrada de Salud</span>
+          <label for="ris-select">RIS</label>
+          <select id="ris-select">
+            <option value="RIS 1">RIS 1</option>
+     
+          <!--  <option value="RIS 2">RIS 2</option><option value="RIS 3">RIS 3</option><option value="RIS 4">RIS 4</option><option value="RIS 5">RIS 5</option><option value="RIS 6">RIS 6</option><option value="RIS 7">RIS 7</option>   --> </select> 
+        </div>
+
+        <div class="sidebar-section">
+          <span class="sidebar-section-title">Establecimiento de Salud</span>
+          <label for="eess-select">EESS</label>
+          <select id="eess-select"><option value="">Seleccione EESS</option><option value="C.S. CONDE DE LA VEGA BAJA">C.S. CONDE DE LA VEGA BAJA</option><option value="C.S. JUAN PEREZ CARRANZA">C.S. JUAN PEREZ CARRANZA</option><option value="C.S. MIRONES">C.S. MIRONES</option><option value="C.S. MIRONES BAJO">C.S. MIRONES BAJO</option><option value="C.S. SAN SEBASTIAN">C.S. SAN SEBASTIAN</option><option value="C.S. UNIDAD VECINAL N° 3">C.S. UNIDAD VECINAL N° 3</option><option value="C.S. VILLA MARIA PERPETUO SOCORRO">C.S. VILLA MARIA PERPETUO SOCORRO</option><option value="P.S. JARDIN ROSA DE SANTA MARIA">P.S. JARDIN ROSA DE SANTA MARIA</option><option value="P.S. PALERMO">P.S. PALERMO</option><option value="P.S. RESCATE">P.S. RESCATE</option><option value="P.S. SANTA ROSA">P.S. SANTA ROSA</option></select>
+        </div>
+
+        <div class="sidebar-section">
+          <span class="sidebar-section-title">Ubicación</span>
+          <label for="distrito-select">Distrito</label>
+          <select id="distrito-select">
+            <option value="">Todos los distritos</option>
+          <option value="BREÑA">BREÑA</option><option value="JESUS MARIA">JESUS MARIA</option><option value="LA VICTORIA">LA VICTORIA</option><option value="LIMA">LIMA</option><option value="LINCE">LINCE</option><option value="MAGDALENA DEL MAR">MAGDALENA DEL MAR</option><option value="MIRAFLORES">MIRAFLORES</option><option value="PUEBLO LIBRE">PUEBLO LIBRE</option><option value="SAN BORJA">SAN BORJA</option><option value="SAN ISIDRO">SAN ISIDRO</option><option value="SAN JUAN DE LURIGANCHO">SAN JUAN DE LURIGANCHO</option><option value="SAN LUIS">SAN LUIS</option><option value="SAN MIGUEL">SAN MIGUEL</option><option value="SURQUILLO">SURQUILLO</option></select>
+        </div>
+
+        <div class="sidebar-section">
+          <span class="sidebar-section-title">Institución educativa</span>
+          <label for="school-search">Buscar colegio</label>
+          <input type="text" id="school-search" placeholder="Escriba nombre de institución educativa" autocomplete="off">
+          <div id="school-search-results" class="school-search-results"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <span class="sidebar-section-title">Capas temáticas</span>
+          <div class="layer-controls">
+            <label class="layer-option">
+              <input type="checkbox" id="show-colegios" checked="">
+              <span>Mostrar colegios</span>
+            </label>
+
+            <label class="layer-option">
+              <input type="checkbox" id="show-iglesias" checked="">
+              <span>Mostrar iglesias</span>
+            </label>
+
+            <label class="layer-option">
+              <input type="checkbox" id="show-mercados" checked="">
+              <span>Mostrar mercados</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <!--<span class="sidebar-section-title">Acciones</span>-->
+          <div class="action-buttons">
+            <button type="button" id="clear-filters" class="btn-secondary">Limpiar filtros</button>
+          </div>
+        </div>
+
+      </aside>
+
+      <section class="map-panel">
+        <div class="map-panel-header">
+          <h2>Visualización geográfica</h2>
+          <span class="map-note">
+            Consulta territorial de EESS, colegios
+            <span class="info-wrapper">
+              <button type="button" class="info-icon" id="info-escalE">i</button>
+              <span class="info-tooltip" id="tooltip-escalE">
+                Fuente: MINEDU-ESCALE actualizada Mayo 2026
+              </span>
+            </span>,
+            iglesias y mercados
+          </span>
+        </div>
+
+        <div id="map" class="leaflet-container leaflet-touch leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom" tabindex="0" style="position: relative; outline-style: none;"><div class="leaflet-pane leaflet-map-pane" style="transform: translate3d(-2137.71px, -152.008px, 0px);"><div class="leaflet-pane leaflet-tile-pane"><div class="leaflet-layer " style="z-index: 1; opacity: 1;"><div class="leaflet-tile-container leaflet-zoom-animated" style="z-index: 15; transform: translate3d(-7332px, -1221px, 0px) scale(8);"></div><div class="leaflet-tile-container leaflet-zoom-animated" style="z-index: 18; transform: translate3d(0px, 0px, 0px) scale(1);"><img alt="" src="https://b.tile.openstreetmap.org/16/18738/34978.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2508px, 387px, 0px); opacity: 1;"><img alt="" src="https://a.tile.openstreetmap.org/16/18738/34977.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2508px, 131px, 0px); opacity: 1;"><img alt="" src="https://a.tile.openstreetmap.org/16/18737/34978.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2252px, 387px, 0px); opacity: 1;"><img alt="" src="https://c.tile.openstreetmap.org/16/18739/34978.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2764px, 387px, 0px); opacity: 1;"><img alt="" src="https://c.tile.openstreetmap.org/16/18738/34979.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2508px, 643px, 0px); opacity: 1;"><img alt="" src="https://c.tile.openstreetmap.org/16/18737/34977.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2252px, 131px, 0px); opacity: 1;"><img alt="" src="https://b.tile.openstreetmap.org/16/18739/34977.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2764px, 131px, 0px); opacity: 1;"><img alt="" src="https://b.tile.openstreetmap.org/16/18737/34979.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2252px, 643px, 0px); opacity: 1;"><img alt="" src="https://a.tile.openstreetmap.org/16/18739/34979.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2764px, 643px, 0px); opacity: 1;"><img alt="" src="https://c.tile.openstreetmap.org/16/18736/34978.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1996px, 387px, 0px); opacity: 1;"><img alt="" src="https://a.tile.openstreetmap.org/16/18740/34978.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(3020px, 387px, 0px); opacity: 1;"><img alt="" src="https://b.tile.openstreetmap.org/16/18736/34977.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1996px, 131px, 0px); opacity: 1;"><img alt="" src="https://c.tile.openstreetmap.org/16/18740/34977.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(3020px, 131px, 0px); opacity: 1;"><img alt="" src="https://a.tile.openstreetmap.org/16/18736/34979.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1996px, 643px, 0px); opacity: 1;"><img alt="" src="https://b.tile.openstreetmap.org/16/18740/34979.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(3020px, 643px, 0px); opacity: 1;"></div></div></div><div class="leaflet-pane leaflet-overlay-pane"><svg pointer-events="none" class="leaflet-zoom-animated" width="1082" height="670" viewBox="2048 96 1082 670" style="transform: translate3d(2048px, 96px, 0px);"><g><path class="leaflet-interactive" stroke="#555555" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#cccccc" fill-opacity="0" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#555555" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#cccccc" fill-opacity="0" fill-rule="evenodd" d="M3132 95L2047 95L2047 232L2138 224L2136 289L2073 387L2047 392L2047 768L3015 768L3046 648L3132 529z"></path><path class="leaflet-interactive" stroke="#555555" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#cccccc" fill-opacity="0" fill-rule="evenodd" d="M3132 768L3132 529L3046 648L3015 768z"></path><path class="leaflet-interactive" stroke="#555555" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#cccccc" fill-opacity="0" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#555555" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#cccccc" fill-opacity="0" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#555555" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#cccccc" fill-opacity="0" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#555555" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#cccccc" fill-opacity="0" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#555555" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#cccccc" fill-opacity="0" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#555555" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#cccccc" fill-opacity="0" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#555555" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#cccccc" fill-opacity="0" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#555555" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#cccccc" fill-opacity="0" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#555555" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#cccccc" fill-opacity="0" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#555555" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#cccccc" fill-opacity="0" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#555555" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="#cccccc" fill-opacity="0" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="yellow" stroke-opacity="1" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="yellow" fill-opacity="0.2" fill-rule="evenodd" d="M3007 770L3027 696L3040 641L3096 564L3134 518L3134 276L2282 372L2287 445L2272 509L2217 664L2198 716L2191 731L2197 770z" aria-describedby="leaflet-tooltip-11140"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0" aria-describedby="leaflet-tooltip-10104"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0" aria-describedby="leaflet-tooltip-11357"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M3132 94L2990 94L2995 144L2934 150L2946 288L3132 268z" aria-describedby="leaflet-tooltip-10078"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0" aria-describedby="leaflet-tooltip-11179"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0" aria-describedby="leaflet-tooltip-10046"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M2707 312L2943 288L2931 150L2932 141L2991 136L2987 94L2685 94L2690 148L2706 163L2707 168L2705 177L2699 181L2696 191L2699 233z" aria-describedby="leaflet-tooltip-11134"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0" aria-describedby="leaflet-tooltip-10043"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M2046 768L2186 768L2185 731L2198 682L2219 629L2255 530L2276 466L2278 434L2271 352L2360 343L2347 204L2046 230z" aria-describedby="leaflet-tooltip-11139"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M2149 94L2158 212L2357 194L2371 342L2683 312L2699 313L2685 183L2664 176L2662 167L2677 156L2680 148L2681 134L2676 94z" aria-describedby="leaflet-tooltip-11138"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0" aria-describedby="leaflet-tooltip-11185"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M3057 642L3098 651L3116 649L3116 654L3114 658L3116 663L3132 666L3132 533L3108 566L3101 579L3068 627z" aria-describedby="leaflet-tooltip-11141"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0" aria-describedby="leaflet-tooltip-12131"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0" aria-describedby="leaflet-tooltip-11857"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0" aria-describedby="leaflet-tooltip-11473"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0" aria-describedby="leaflet-tooltip-11472"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0" aria-describedby="leaflet-tooltip-11471"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0" aria-describedby="leaflet-tooltip-11858"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0" aria-describedby="leaflet-tooltip-11470"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0" aria-describedby="leaflet-tooltip-8664"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M3132 768L3132 675L3124 673L3115 668L3077 659L3049 661L3025 756L3018 768z" aria-describedby="leaflet-tooltip-12086"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path><path class="leaflet-interactive" stroke="#0096ba" stroke-opacity="1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="#0096ba" fill-opacity="0.2" fill-rule="evenodd" d="M0 0"></path></g></svg></div><div class="leaflet-pane leaflet-shadow-pane"></div><div class="leaflet-pane leaflet-marker-pane"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(2589px, 431px, 0px); z-index: 431;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(3920px, 44px, 0px); z-index: 44;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(2362px, -284px, 0px); z-index: -284;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(4670px, 564px, 0px); z-index: 564;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(3169px, 3088px, 0px); z-index: 3088;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(3377px, -135px, 0px); z-index: -135;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(2893px, -247px, 0px); z-index: -247;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(2822px, -37px, 0px); z-index: -37;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(1897px, 443px, 0px); z-index: 443;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(2521px, -44px, 0px); z-index: -44;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(3183px, -202px, 0px); z-index: -202;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5218px, 92px, 0px); z-index: 92;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(3487px, 573px, 0px); z-index: 573;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5167px, 3189px, 0px); z-index: 3189;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(1847px, 937px, 0px); z-index: 937;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5772px, 3780px, 0px); z-index: 3780;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5798px, 1200px, 0px); z-index: 1200;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5412px, 953px, 0px); z-index: 953;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(4700px, 3636px, 0px); z-index: 3636;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(4018px, 3671px, 0px); z-index: 3671;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5013px, -721px, 0px); z-index: -721;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(4243px, 1913px, 0px); z-index: 1913;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5627px, 2028px, 0px); z-index: 2028;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5407px, -998px, 0px); z-index: -998;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(4754px, 1226px, 0px); z-index: 1226;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5856px, 1605px, 0px); z-index: 1605;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5983px, -889px, 0px); z-index: -889;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6032px, 2867px, 0px); z-index: 2867;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(4231px, 900px, 0px); z-index: 900;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5794px, -2139px, 0px); z-index: -2139;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(4859px, -1464px, 0px); z-index: -1464;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6696px, -1497px, 0px); z-index: -1497;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5934px, -1802px, 0px); z-index: -1802;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(7585px, -984px, 0px); z-index: -984;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5236px, -1881px, 0px); z-index: -1881;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(4962px, -1742px, 0px); z-index: -1742;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5548px, -1689px, 0px); z-index: -1689;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5422px, -2274px, 0px); z-index: -2274;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6803px, -889px, 0px); z-index: -889;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(4809px, -2598px, 0px); z-index: -2598;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5197px, -2802px, 0px); z-index: -2802;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6081px, -4089px, 0px); z-index: -4089;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6246px, -3115px, 0px); z-index: -3115;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(4989px, -2199px, 0px); z-index: -2199;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5457px, -3107px, 0px); z-index: -3107;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6130px, -4280px, 0px); z-index: -4280;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5215px, -3584px, 0px); z-index: -3584;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5604px, -4105px, 0px); z-index: -4105;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6245px, -3738px, 0px); z-index: -3738;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6854px, -3649px, 0px); z-index: -3649;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6170px, -4627px, 0px); z-index: -4627;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6855px, -4099px, 0px); z-index: -4099;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6298px, -4608px, 0px); z-index: -4608;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6456px, -4619px, 0px); z-index: -4619;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6177px, -5266px, 0px); z-index: -5266;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(7082px, -4998px, 0px); z-index: -4998;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(7325px, -4871px, 0px); z-index: -4871;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6601px, -4413px, 0px); z-index: -4413;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(5708px, 1191px, 0px); z-index: 1191;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(6894px, -4818px, 0px); z-index: -4818;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(3227px, 713px, 0px); z-index: 713;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(2524px, 2222px, 0px); z-index: 2222;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(3257px, 1714px, 0px); z-index: 1714;"><img src="marker-icon.png" class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" alt="Marker" tabindex="0" role="button" style="margin-left: -10px; margin-top: -30px; width: 32px; height: 32px; transform: translate3d(1127px, 1880px, 0px); z-index: 1880;"></div><div class="leaflet-pane leaflet-tooltip-pane"></div><div class="leaflet-pane leaflet-popup-pane"><div class="leaflet-popup  leaflet-zoom-animated" style="opacity: 1; transform: translate3d(2589px, 401px, 0px); bottom: -7px; left: -174px;"><div class="leaflet-popup-content-wrapper"><div class="leaflet-popup-content" style="width: 301px;"><b>C.S. MIRONES</b><br>Dirección: AVENIDA LUIS BRAYLE 13 LIMA LIMA LIMA  - PUEBLO LIBRE, LIMA
+                <br><a href="https://www.google.com/maps/dir/?api=1&amp;origin=My+Location&amp;destination=-12.0509882,-77.0673543" target="_blank">Cómo llegar</a></div></div><div class="leaflet-popup-tip-container"><div class="leaflet-popup-tip"></div></div><a class="leaflet-popup-close-button" role="button" aria-label="Close popup" href="#close"><span aria-hidden="true">×</span></a></div></div><div class="leaflet-proxy leaflet-zoom-animated" style="transform: translate3d(4.79701e+06px, 8.95441e+06px, 0px) scale(32768);"></div></div><div class="leaflet-control-container"><div class="leaflet-top leaflet-left"><div class="leaflet-control-zoom leaflet-bar leaflet-control"><a class="leaflet-control-zoom-in" href="#" title="Zoom in" role="button" aria-label="Zoom in" aria-disabled="false"><span aria-hidden="true">+</span></a><a class="leaflet-control-zoom-out" href="#" title="Zoom out" role="button" aria-label="Zoom out" aria-disabled="false"><span aria-hidden="true">−</span></a></div></div><div class="leaflet-top leaflet-right"></div><div class="leaflet-bottom leaflet-left"></div><div class="leaflet-bottom leaflet-right"><div class="leaflet-control-attribution leaflet-control"><a href="https://leafletjs.com" title="A JavaScript library for interactive maps"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8" class="leaflet-attribution-flag"><path fill="#4C7BE1" d="M0 0h12v4H0z"></path><path fill="#FFD500" d="M0 4h12v3H0z"></path><path fill="#E0BC00" d="M0 7h12v1H0z"></path></svg> Leaflet</a> <span aria-hidden="true">|</span> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> - RIS 1</div></div></div></div>
+      </section>
+    </main>
+
+    <footer class="footer-bar">
+      Desarrollado por <strong>RIS 1 - DIRIS Lima Centro</strong>
+    </footer>
+  </div>
+  
+  <script>
+    var map = L.map("map").setView([-12.0464, -77.0428], 12);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> - RIS 1 '
+    }).addTo(map);
+
+    // Iconos personalizados
+    var smallIcon = L.divIcon({
+      html: `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="60" viewBox="0 0 24 24" fill="#007e9d"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.3 7 13 7 13s7-7.7 7-13c0-3.9-3.1-7-7-7zm0 9.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 6.5 12 6.5 14.5 7.6 14.5 9 13.4 11.5 12 11.5z"/></svg>`,
+      iconSize: [18, 32],
+      className: 'svg-icon',
+      iconAnchor: [6, 20],
+      popupAnchor: [0, -20]
+    });
+
+    var smallIcon2 = L.icon({
+      iconUrl: 'marker-icon.png',
+      iconSize: [32, 32],
+      iconAnchor: [10, 30],
+      popupAnchor: [0, -30]
+    });
+
+    // Icono para iglesias
+    var smallIcon3 = L.divIcon({
+      html: `<svg xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 489.437">
+  <path d="M266.132 425.011c-3.122 2.276-7.36 2.59-10.837.357-37.511-23.86-69.044-52.542-93.798-83.672-34.164-42.862-55.708-90.407-63.066-136.17-7.494-46.427-.492-91.074 22.613-127.381 9.098-14.361 20.738-27.429 34.922-38.715C188.57 13.428 225.811-.263 262.875.004c35.727.268 70.961 13.601 101.424 41.391 10.706 9.722 19.715 20.872 27.074 32.959 24.843 40.899 30.196 93.084 19.269 145.982-17.047 82.829-71.772 160.522-144.51 204.675zM266.003 74.554v18.452h21.888v21.48h-21.888v7.761l61.86 62.516-18.139 15.249-3.964-4.091v35.716h-38.116v-26.093h-24.028v26.1l-37.794-.007v-35.784l-3.962 4.159-18.145-15.249 60.811-61.457v-8.82h-20.838v-21.48h20.838V74.554h21.477zm-10.216 80.627c7.883 0 14.273 6.39 14.273 14.273s-6.39 14.273-14.273 14.273c-7.882 0-14.272-6.39-14.272-14.273s6.39-14.273 14.272-14.273zm.003-117.93c69.041 0 125.006 55.965 125.006 125.006S324.831 287.263 255.79 287.263s-125.006-55.965-125.006-125.006S186.749 37.251 255.79 37.251z" fill="#80118e"/>
+</svg>`,
+      iconSize: [32, 45],
+      className: 'svg-icon',
+      iconAnchor: [6, 20],
+      popupAnchor: [0, -20]
+    });
+
+    // Icono para Mercados
+    var smallIcon4 = L.divIcon({
+      html: `<svg xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 489.437"><path d="M266.132 425.01c-3.122 2.276-7.36 2.59-10.837.358-37.511-23.86-69.044-52.542-93.797-83.673-34.165-42.861-55.709-90.407-63.066-136.169-7.494-46.428-.493-91.074 22.612-127.381 9.098-14.361 20.738-27.429 34.923-38.715C188.57 13.428 225.811-.263 262.875.004c35.727.268 70.961 13.601 101.423 41.391 10.707 9.722 19.716 20.872 27.075 32.959 24.843 40.898 30.195 93.084 19.269 145.982-17.047 82.828-71.772 160.521-144.51 204.674zM109.524 317.184c6.788 0 12.291 5.503 12.291 12.291s-5.503 12.291-12.291 12.291H71.37L33.265 464.855H477.89l-41.374-123.089h-28.585c-6.788 0-12.291-5.503-12.291-12.291s5.503-12.291 12.291-12.291h46.17L512 489.437H0l53.325-172.253h56.199zm77.29-186.755h13.169l32.231-36.104c2.864-3.208 7.827-3.49 11.035-.627v.003c3.211 2.863 3.49 7.83.627 11.038l-22.928 25.69h70.268l-22.932-25.69c-2.866-3.208-2.584-8.175.624-11.038h.003c3.208-2.866 8.172-2.584 11.038.624l32.229 36.106 12.591-.002.17.004 11.825.001c2.649 0 4.818 2.166 4.818 4.815v13.584a4.83 4.83 0 01-4.818 4.817h-10.233l-5.264 66.371c-.143 1.824-1.515 3.34-3.345 3.34H193.657c-1.831 0-3.198-1.51-3.342-3.34l-5.269-66.371h-10.23a4.83 4.83 0 01-4.818-4.817v-13.584c0-2.65 2.168-4.815 4.818-4.815l11.827-.001.171-.004zm91.635 25.827h15.228v44.027l-15.228.002v-44.029zm-29.629 0h15.223v44.027l-15.223.002v-44.029zm-29.631 0h15.228v44.027l-15.228.002v-44.029zM255.79 37.251c69.041 0 125.006 55.965 125.006 125.006S324.831 287.263 255.79 287.263s-125.006-55.965-125.006-125.006S186.749 37.251 255.79 37.251z" fill="#013220"/></svg>`,
+      iconSize: [32, 45],
+      className: 'svg-icon',
+      iconAnchor: [6, 14],
+      popupAnchor: [0, -20]
+    });
+
+    const risSelect = document.getElementById("ris-select");
+    const eessSelect = document.getElementById("eess-select");
+    const distritoSelect = document.getElementById("distrito-select");
+    const schoolSearchInput = document.getElementById("school-search");
+    const schoolSearchResults = document.getElementById("school-search-results");
+    const clearFiltersBtn = document.getElementById("clear-filters");
+
+    const eessMarkers = {};
+    const risEessMap = {};
+    const eessPolygons = {};
+    const distritoPolygons = {};
+
+    const schoolIndex = [];
+    const schoolGroupedData = [];
+    let schoolMarkers = [];
+    let currentHighlightedPolygon = null;
+
+    // Grupos de capas para controlar visibilidad
+    function createClusterLayer(clusterClassName) {
+      return L.markerClusterGroup({
+        showCoverageOnHover: false,
+        spiderfyOnMaxZoom: true,
+        disableClusteringAtZoom: 17,
+        maxClusterRadius: 45,
+        iconCreateFunction: function(cluster) {
+          return L.divIcon({
+            html: `<div><span>${cluster.getChildCount()}</span></div>`,
+            className: `marker-cluster ${clusterClassName}`,
+            iconSize: L.point(40, 40)
+          });
+        }
+      });
+    }
+
+    var colegiosLayer = createClusterLayer('cluster-colegios');
+    var iglesiasLayer = createClusterLayer('cluster-iglesias');
+    var mercadosLayer = createClusterLayer('cluster-mercados');
+
+    map.addLayer(colegiosLayer);
+    map.addLayer(iglesiasLayer);
+    map.addLayer(mercadosLayer);
+
+    // Control de capas con checkboxes
+    document.getElementById('show-colegios').addEventListener('change', function() {
+      if (this.checked) {
+        map.addLayer(colegiosLayer);
+      } else {
+        map.removeLayer(colegiosLayer);
+      }
+    });
+
+    document.getElementById('show-iglesias').addEventListener('change', function() {
+      if (this.checked) {
+        map.addLayer(iglesiasLayer);
+      } else {
+        map.removeLayer(iglesiasLayer);
+      }
+    });
+
+    document.getElementById('show-mercados').addEventListener('change', function() {
+      if (this.checked) {
+        map.addLayer(mercadosLayer);
+      } else {
+        map.removeLayer(mercadosLayer);
+      }
+    });
+
+    // ===========================
+    // Cargar establecimientos de salud
+    // ===========================
+    Papa.parse("data_eess.csv", {
+      download: true,
+      header: true,
+      delimiter: ";",
+      complete: function(results) {
+        const data = results.data;
+
+        data.forEach(row => {
+          if (row.COORDENADAS && row.RIS && row.EESS) {
+            const [lat, lon] = row.COORDENADAS.split(",").map(coord => parseFloat(coord.trim()));
+
+            if (!isNaN(lat) && !isNaN(lon)) {
+              const marker = L.marker([lat, lon], { icon: smallIcon2 })
+                .bindPopup(`<b>${row.EESS}</b><br>Dirección: ${row.DIRECCION} - ${row.DISTRITO}
+                <br><a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${row.COORDENADAS}" target="_blank">Cómo llegar</a>`)
+                .addTo(map);
+
+              const ris = row.RIS.trim();
+              const eess = row.EESS.trim();
+
+              // Guardar marcador por EESS
+              eessMarkers[eess] = { marker, lat, lon };
+
+              // Agrupar EESS por RIS
+              if (!risEessMap[ris]) {
+                risEessMap[ris] = [];
+              }
+              risEessMap[ris].push(eess);
+            }
+          }
+        });
+
+        // Llenar select de RIS
+        Object.keys(risEessMap).sort().forEach(ris => {
+          const option = document.createElement("option");
+          option.value = ris;
+          option.textContent = ris;
+          risSelect.appendChild(option);
+        });
+      }
+    });
+
+    // ===========================
+    // Eventos de selección
+    // ===========================
+
+    risSelect.addEventListener("change", function() {
+      const ris = this.value;
+      eessSelect.innerHTML = `<option value="">Seleccione EESS</option>`;
+      eessSelect.disabled = !ris;
+
+      // Resetear filtro de distrito
+      distritoSelect.value = "";
+      resetDistritoHighlight();
+
+      // Restablecer polígono destacado si existe
+      resetHighlightedPolygon(); 
+
+      if (ris && risEessMap[ris]) {
+        risEessMap[ris].sort().forEach(eess => {
+          const option = document.createElement("option");
+          option.value = eess;
+          option.textContent = eess;
+          eessSelect.appendChild(option);
+        });
+      }
+    });
+
+    eessSelect.addEventListener("change", function() {
+      const eess = this.value;
+
+      // Resetear filtro de distrito
+      distritoSelect.value = "";
+      resetDistritoHighlight();
+
+      // Restablecer polígono destacado si existe
+      resetHighlightedPolygon();
+      
+      if (eess) {
+        // Centrar mapa en el marcador
+        const data = eessMarkers[eess];
+        if (data) {
+          map.setView([data.lat, data.lon], 16);
+          data.marker.openPopup();
+        }
+        
+        // Resaltar el polígono correspondiente
+        if (eessPolygons[eess]) {
+          highlightPolygon(eessPolygons[eess]);
+        }
+      }
+    });
+    
+    // Función para resaltar un polígono
+    function highlightPolygon(layer) {
+      currentHighlightedPolygon = layer;
+      layer.setStyle({ 
+        weight: 4, 
+        color: "yellow", 
+        fillOpacity: 0.2 
+      });
+    }
+    
+    function resetDistritoHighlight() {
+      if (distritosGeoLayer) {
+        distritosGeoLayer.eachLayer(layer => {
+          layer.setStyle({ color: "#555555", weight: 1.5, fillOpacity: 0, fillColor: "#cccccc" });
+        });
+      }
+    }
+
+    // Función para restablecer el polígono destacado
+    function resetHighlightedPolygon() {
+      if (currentHighlightedPolygon) {
+        currentHighlightedPolygon.setStyle({ 
+          weight: 2, 
+          color: "#0096ba", 
+          fillOpacity: 0.2 
+        });
+        currentHighlightedPolygon = null;
+      }
+    }
+
+    function clearAllFilters() {
+      risSelect.value = "";
+      eessSelect.innerHTML = `<option value="">Seleccione EESS</option>`;
+      eessSelect.disabled = true;
+
+      distritoSelect.value = "";
+      schoolSearchInput.value = "";
+      schoolSearchResults.innerHTML = "";
+      schoolSearchResults.classList.remove("active");
+
+      document.getElementById("show-colegios").checked = true;
+      document.getElementById("show-iglesias").checked = true;
+      document.getElementById("show-mercados").checked = true;
+
+      if (!map.hasLayer(colegiosLayer)) map.addLayer(colegiosLayer);
+      if (!map.hasLayer(iglesiasLayer)) map.addLayer(iglesiasLayer);
+      if (!map.hasLayer(mercadosLayer)) map.addLayer(mercadosLayer);
+
+      resetDistritoHighlight();
+      resetHighlightedPolygon();
+
+      map.closePopup();
+      map.setView([-12.0464, -77.0428], 12);
+    }
+    
+    clearFiltersBtn.addEventListener("click", clearAllFilters);
+    
+    // ===========================
+    // Cargar GeoJSON y centros educativos
+    // ===========================
+
+    fetch("DIRISLC_CENTROS.geojson")
+      .then(response => response.json())
+      .then(geoData => {
+        L.geoJSON(geoData, {
+          style: feature => ({
+            color: feature.properties.color || "#0096ba",
+            weight: 2,
+            fillOpacity: 0.2
+          }),
+          onEachFeature: (feature, layer) => {
+            if (feature.properties) {
+              const eessName = feature.properties.EESS;
+              
+              // Guardar referencia al polígono por nombre de EESS
+              if (eessName) {
+                eessPolygons[eessName] = layer;
+              }
+
+              // Buscar las coordenadas del EESS en los datos cargados
+              let routeLink = '';
+              if (eessMarkers[eessName]) {
+                  const { lat, lon } = eessMarkers[eessName];
+                  routeLink = `<br><a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${lat},${lon}" target="_blank">Cómo llegar</a>`;
+              }              
+
+              const content = `<b>EESS:</b> ${eessName}<br>
+                               <b>RIS:</b> ${feature.properties.RIS}<br>
+                               <b>Distrito:</b> ${feature.properties.DISTRITO}<br>
+                               <b>Ruta:</b> ${routeLink}`;
+
+              layer.bindTooltip(content, {
+                permanent: false,
+                direction: "auto",
+                opacity: 0.9
+              });
+
+              // Eventos de mouseover/mouseout
+              layer.on("mouseover", function() {
+                // Solo resaltar si no es el polígono ya seleccionado
+                if (layer !== currentHighlightedPolygon) {
+                  layer.setStyle({ weight: 4, color: "yellow", fillOpacity: 0.2 });
+                }
+              });
+              
+              layer.on("mouseout", function() {
+                // Solo restaurar estilo si no es el polígono ya seleccionado
+                if (layer !== currentHighlightedPolygon) {
+                  layer.setStyle({ weight: 2, color: "#0096ba", fillOpacity: 0.2 });
+                }
+              });
+              
+              // Al hacer clic en un polígono también seleccionamos el EESS correspondiente
+              layer.on("click", function() {
+                if (eessName) {
+                  // Buscar el RIS para este EESS
+                  let risFound = "";
+                  for (const [ris, eessList] of Object.entries(risEessMap)) {
+                    if (eessList.includes(eessName)) {
+                      risFound = ris;
+                      break;
+                    }
+                  }
+                  
+                  // Actualizar selects
+                  if (risFound) {
+                    risSelect.value = risFound;
+                    
+                    // Disparar el evento change para actualizar el select de EESS
+                    const event = new Event('change');
+                    risSelect.dispatchEvent(event);
+                    
+                    // Ahora seleccionar el EESS
+                    setTimeout(() => {
+                      eessSelect.value = eessName;
+                      eessSelect.dispatchEvent(new Event('change'));
+                    }, 100);
+                  }
+                }
+              });
+            }
+          }
+        }).addTo(map);
+
+      })
+      .catch(error => console.error("Error cargando GeoJSON:", error));
+
+    // ===========================
+    // Cargar colegios
+    // ===========================
+    Papa.parse("data_cole.csv", {
+      download: true,
+      header: true,
+      delimiter: ";",
+      complete: function(results) {
+        const schoolsByCoord = {};
+
+        // Agrupar por coordenadas
+        results.data.forEach(row => {
+          if (row.COORDENADAS) {
+            const coordKey = row.COORDENADAS.trim();
+
+            if (!schoolsByCoord[coordKey]) {
+              schoolsByCoord[coordKey] = [];
+            }
+
+            schoolsByCoord[coordKey].push(row);
+          }
+        });
+
+        // Crear un marcador por coordenada y un solo registro para búsqueda
+        Object.entries(schoolsByCoord).forEach(([coordKey, schools]) => {
+          const [lat, lon] = coordKey.split(",").map(coord => parseFloat(coord.trim()));
+
+          if (!isNaN(lat) && !isNaN(lon)) {
+            let popupContent = '';
+
+            schools.forEach((school, index) => {
+              if (index > 0) {
+                popupContent += '<hr>';
+              }
+
+              const linkRuta = `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${lat},${lon}`;
+
+              popupContent += `
+                <b>${school.CENTRO_EDUCATIVO}</b><br>
+                Código Modular: <span style="color:blue; font-weight:bold;">
+                  ${school.C_MODULAR}
+                </span><br>
+                Distrito: ${(school.DISTRITO || '').trim()}<br>
+                Nivel: ${school.NIVEL}<br>
+                Tipo: ${school.TIPO}<br>
+                Dirección: ${school.DIRECCION}<br>
+                Total alumnos: ${school.TOTAL}<br>
+                Ruta: <a href="${linkRuta}" target="_blank">Cómo llegar</a>
+              `;
+            });
+
+            const marker = L.marker([lat, lon], { icon: smallIcon })
+              .addTo(colegiosLayer)
+              .bindPopup(popupContent);
+
+            schoolMarkers.push(marker);
+
+            // nombres únicos del grupo
+            const uniqueNames = [...new Set(
+              schools.map(s => (s.CENTRO_EDUCATIVO || '').trim()).filter(Boolean)
+            )];
+
+            const uniqueNiveles = [...new Set(
+              schools.map(s => (s.NIVEL || '').trim()).filter(Boolean)
+            )];
+
+            // distrito principal
+            const distritoPrincipal = (schools[0].DISTRITO || '').trim();
+
+            // nombre visible del resultado:
+            // si todos comparten nombre, usa ese
+            // si hubiera más de uno, usa el primero
+            const displayName = uniqueNames[0] || 'Institución educativa';
+
+            const groupedItem = {
+              nombre: displayName,
+              distrito: distritoPrincipal,
+              lat,
+              lon,
+              marker,
+              popupHtml: popupContent,
+              searchTerms: uniqueNames.join(' | '),
+              nombresAsociados: uniqueNames,
+              niveles: uniqueNiveles
+            };
+
+            schoolGroupedData.push(groupedItem);
+            schoolIndex.push(groupedItem);
+          }
+        });
+      }
+    });
+    
+    function normalizeText(text) {
+      return (text || "")
+        .toString()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    function renderSchoolResults(items) {
+      schoolSearchResults.innerHTML = "";
+
+      if (!items.length) {
+        schoolSearchResults.classList.remove("active");
+        return;
+      }
+
+      items.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "school-result-item";
+        div.innerHTML = `
+        <div class="school-result-name">${item.nombre}</div>
+        <div class="school-result-district">
+          ${item.distrito || "Sin distrito"} · ${item.niveles.length} nivel(es)
+        </div>
+        `;
+
+        div.addEventListener("click", function() {
+          schoolSearchInput.value = `${item.nombre} - ${item.distrito || "Sin distrito"}`;
+          schoolSearchResults.classList.remove("active");
+          selectSchoolResult(item);
+        });
+
+        schoolSearchResults.appendChild(div);
+      });
+
+      schoolSearchResults.classList.add("active");
+    }
+
+    function selectSchoolResult(item) {
+      risSelect.value = "";
+      eessSelect.innerHTML = `<option value="">Seleccione EESS</option>`;
+      eessSelect.disabled = true;
+      distritoSelect.value = "";
+
+      resetDistritoHighlight();
+      resetHighlightedPolygon();
+
+      map.setView([item.lat, item.lon], 17);
+
+      const tempPopup = L.popup()
+        .setLatLng([item.lat, item.lon])
+        .setContent(item.popupHtml)
+        .openOn(map);
+    }
+
+    schoolSearchInput.addEventListener("input", function() {
+      const term = normalizeText(this.value);
+
+      if (term.length < 2) {
+        schoolSearchResults.innerHTML = "";
+        schoolSearchResults.classList.remove("active");
+        return;
+      }
+
+      const matches = schoolIndex
+        .filter(item => {
+          const nombre = normalizeText(item.nombre);
+          const distrito = normalizeText(item.distrito);
+          const asociados = normalizeText(item.searchTerms);
+          return nombre.includes(term) || distrito.includes(term) || asociados.includes(term);
+        })
+        .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
+        .slice(0, 12);
+
+      renderSchoolResults(matches);
+    });
+
+    document.addEventListener("click", function(e) {
+      if (
+        !schoolSearchInput.contains(e.target) &&
+        !schoolSearchResults.contains(e.target)
+      ) {
+        schoolSearchResults.classList.remove("active");
+      }
+    });   
+    
+    // ===========================
+    // Cargar GeoJSON de Distritos
+    // ===========================
+    var distritosGeoLayer = null;
+    var currentDistritoLayer = null;
+
+    fetch("DIRISLC_DISTRITOS.geojson")
+      .then(response => response.json())
+      .then(geoData => {
+
+        // Crear capa con estilo base (invisible por defecto)
+        distritosGeoLayer = L.geoJSON(geoData, {
+          style: {
+            color: "#555555",
+            weight: 1.5,
+            fillOpacity: 0,
+            fillColor: "#cccccc"
+          },
+          onEachFeature: (feature, layer) => {
+            const distName = feature.properties.DISTRITO;
+            if (distName) {
+              distritoPolygons[distName] = layer;
+            }
+          }
+        }).addTo(map);
+
+        // Llenar select de distritos
+        Object.keys(distritoPolygons).sort().forEach(dist => {
+          const option = document.createElement("option");
+          option.value = dist;
+          option.textContent = dist;
+          distritoSelect.appendChild(option);
+        });
+
+        // Evento filtro por distrito
+        distritoSelect.addEventListener("change", function() {
+          const distSeleccionado = this.value;
+
+          // Resetear filtro RIS/EESS
+          risSelect.value = "";
+          eessSelect.innerHTML = `<option value="">Seleccione EESS</option>`;
+          eessSelect.disabled = true;
+          resetHighlightedPolygon();
+
+          // Restaurar estilo de todos
+          distritosGeoLayer.eachLayer(layer => {
+            layer.setStyle({ color: "#555555", weight: 1.5, fillOpacity: 0, fillColor: "#cccccc" });
+          });
+
+          if (distSeleccionado && distritoPolygons[distSeleccionado]) {
+            // Resaltar el distrito elegido
+            distritoPolygons[distSeleccionado].setStyle({
+              color: "#e63946",
+              weight: 3,
+              fillOpacity: 0.25,
+              fillColor: "#e63946"
+            });
+
+            // Zoom al distrito
+            map.fitBounds(distritoPolygons[distSeleccionado].getBounds(), { padding: [20, 20] });
+          }
+        });
+
+      })
+      .catch(error => console.error("Error cargando GeoJSON de distritos:", error));
+
+
+
+    // ===========================
+    // Cargar iglesias
+    // ===========================
+    Papa.parse("iglesias2.csv", {
+      download: true,
+      header: true,
+      delimiter: ";",
+      complete: function(results) {
+        results.data.forEach(row => {
+          if (row.coordenadas) {
+            const [lat, lon] = row.coordenadas.split(",").map(coord => parseFloat(coord.trim()));
+            
+            if (!isNaN(lat) && !isNaN(lon)) {
+              // Preparar el contenido del popup
+              let popupContent = `<b>${row.name}</b>`;
+              
+              // Agregar dirección solo si no está vacía
+              if (row.address && row.address.trim() !== "") {
+                popupContent += `<br>Dirección: ${row.address}`;
+              }
+              
+              // Agregar enlace de "cómo llegar"
+              const linkRuta = `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${lat},${lon}`;
+              popupContent += `<br><a href="${linkRuta}" target="_blank">Cómo llegar</a>`;
+              
+              // Crear el marcador y agregarlo a la capa de iglesias
+              L.marker([lat, lon], { icon: smallIcon3 })
+                .addTo(iglesiasLayer)
+                .bindPopup(popupContent);
+            }
+          }
+        });
+      }
+    });
+
+
+
+    // ===========================
+    // Cargar mercados
+    // ===========================
+    Papa.parse("mercados.csv", {
+      download: true,
+      header: true,
+      delimiter: ";",
+      complete: function(results) {
+        results.data.forEach(row => {
+          if (row.coordenadas) {
+            const [lat, lon] = row.coordenadas.split(",").map(coord => parseFloat(coord.trim()));
+            
+            if (!isNaN(lat) && !isNaN(lon)) {
+              // Preparar el contenido del popup
+              let popupContent = `<b>${row.name}</b>`;
+              
+              // Agregar dirección solo si no está vacía
+              if (row.address && row.address.trim() !== "") {
+                popupContent += `<br>Dirección: ${row.address}`;
+              }
+              
+              // Agregar enlace de "cómo llegar"
+              const linkRuta = `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${lat},${lon}`;
+              popupContent += `<br><a href="${linkRuta}" target="_blank">Cómo llegar</a>`;
+              
+              // Crear el marcador y agregarlo a la capa de mercados
+              L.marker([lat, lon], { icon: smallIcon4 })
+                .addTo(mercadosLayer)
+                .bindPopup(popupContent);
+            }
+          }
+        });
+      }
+    });  
+      
+
+    const infoBtn = document.getElementById("info-escalE");
+    const infoTooltip = document.getElementById("tooltip-escalE");
+
+    infoBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      infoTooltip.classList.toggle("active");
+    });
+
+    document.addEventListener("click", function() {
+      infoTooltip.classList.remove("active");
+    });    
+  </script>
+
+
+</body></html>
