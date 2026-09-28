@@ -3,6 +3,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mapa de EESS e Instituciones Educativas - RIS 1 - DIRIS Lima Centro</title>
+  <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
@@ -82,6 +83,9 @@
           <span class="sidebar-section-title">Personalizar Colores</span>
           <button type="button" id="toggle-colors" class="btn-secondary" style="margin-bottom: 10px;">Mostrar Paleta de Centros</button>
           
+
+
+
           <div id="color-palette-container" style="display: none; max-height: 180px; overflow-y: auto; border: 1px solid #cbd5e1; padding: 10px; border-radius: 10px; background: #f8fafc;">
           </div>
 
@@ -156,26 +160,46 @@
         <div class="sidebar-section">
           <div class="action-buttons">
             <button type="button" id="clear-filters" class="btn-secondary">Limpiar filtros</button>
+         
+         
+         <!-- NUEVO BOTÓN PARA CAPTURA -->
+        <button type="button" id="btn-captura-hd" class="btn-secondary" style="background: #0284c7; color: white; margin-top: 10px; border: none;">
+          Descargar Mapa (Ultra HD)
+        </button>
+         
+         
+         
+         
           </div>
         </div>
       </aside>
 
-      <section class="map-panel">
-        <div class="map-panel-header">
-          <h2>Visualización geográfica</h2>
-          <span class="map-note">
-            Consulta territorial de EESS, colegios
-            <span class="info-wrapper">
-              <button type="button" class="info-icon" id="info-escalE">i</button>
-              <span class="info-tooltip" id="tooltip-escalE">
-                Fuente: MINEDU-ESCALE actualizada Mayo 2026
-              </span>
-            </span>,
-            iglesias, mercados y hospitales
-          </span>
-        </div>
-        <div id="map" style="height: 82vh; min-height: 600px; border-radius: 10px; width: 100%;"></div>
-      </section>
+
+
+<!-- SECCIÓN DEL MAPA -->
+<section class="map-panel" style="display: flex; flex-direction: column; width: 100%; min-height: 95vh; padding: 10px;">
+    
+    <!-- Mapa redimensionado (Mucho más alto y ancho) -->
+    <div id="map" style="flex: 1; border-radius: 10px; width: 100%; min-height: 85vh; border: 1px solid #cbd5e1; z-index: 1;"></div>
+    
+    <!-- Leyenda externa empujada hacia abajo -->
+    <div id="leyenda-externa" style="margin-top: 20px; padding: 15px; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; color: #0f172a; font-size: 15px; font-weight: bold;">Leyenda de Establecimientos de Salud</h4>
+        <button id="btn-toggle-leyenda" style="background: #e2e8f0; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; color: #334155; transition: background 0.2s;">
+          Ocultar
+        </button>
+      </div>
+      <div id="leyenda-contenido" style="display: flex; flex-wrap: wrap; gap: 10px; max-height: 20vh; overflow-y: auto;"></div>
+    </div>
+    
+  </section>
+
+
+
+
+
+
     </main>
 
     <footer class="footer-bar">
@@ -183,14 +207,37 @@
     </footer>
   </div>
   
-  <script>
-    var map = L.map("map").setView([-12.0464, -77.0428], 13);
+<script>
+    // ==========================================
+    // 1. INICIALIZAR EL MAPA Y CAPA BASE (Textos Oscuros)
+    // ==========================================
+// INICIALIZAR EL MAPA CON ZOOM INTERMEDIO
+    var map = L.map("map", {
+      zoomSnap: 0.5,   // Permite detenerse en niveles intermedios (ej. 13.5, 14.0, 14.5)
+      zoomDelta: 0.5   // Define que cada clic del scroll avance de 0.5 en 0.5
+    }).setView([-12.0464, -77.0428], 13);
+
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> - RIS 1 '
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> - RIS 1 ',
+detectRetina: true , 
+       crossOrigin: true
     }).addTo(map);
 
-    // Iconos
+
+
+
+
+
+
+
+
+
+
+
+    // ==========================================
+    // 2. DEFINICIÓN DE ICONOS (Colegios, Iglesias, Mercados, Hospitales)
+    // ==========================================
     var smallIcon = L.divIcon({
       html: `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="60" viewBox="0 0 24 24" fill="#007e9d"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.3 7 13 7 13s7-7.7 7-13c0-3.9-3.1-7-7-7zm0 9.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 6.5 12 6.5 14.5 7.6 14.5 9 13.4 11.5 12 11.5z"/></svg>`,
       iconSize: [18, 32], className: 'svg-icon', iconAnchor: [6, 20], popupAnchor: [0, -20]
@@ -206,12 +253,16 @@
       iconSize: [32, 45], className: 'svg-icon', iconAnchor: [6, 14], popupAnchor: [0, -20]
     });
 
-    // Icono Hospital (Cruz Roja)
-    var hospitalIcon = L.divIcon({
-      html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" fill="#d32f2f"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm1 10h-2v2H9v-2H7V9h2V7h2v2h2v2z"/></svg>`,
-      iconSize: [36, 36], className: 'svg-icon', iconAnchor: [18, 36], popupAnchor: [0, -36]
+    var hospitalIcon = L.icon({
+      iconUrl: 'iconos/hospital.png',
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40]
     });
 
+    // ==========================================
+    // 3. VARIABLES DE ESTADO Y UI
+    // ==========================================
     const risSelect = document.getElementById("ris-select");
     const eessSelect = document.getElementById("eess-select");
     const distritoSelect = document.getElementById("distrito-select");
@@ -267,7 +318,9 @@
       "C.E. ANTIRABICO ZOONOSIS": 15
     };
 
-    // CAPAS
+    // ==========================================
+    // 4. CAPAS DE CLUSTERS Y HOSPITALES MANUALES
+    // ==========================================
     function createClusterLayer(clusterClassName) {
       return L.markerClusterGroup({
         showCoverageOnHover: false, spiderfyOnMaxZoom: true, disableClusteringAtZoom: 17, maxClusterRadius: 45,
@@ -299,9 +352,6 @@
     document.getElementById('show-mercados').addEventListener('change', function() {
       if (this.checked) map.addLayer(mercadosLayer); else map.removeLayer(mercadosLayer);
     });
-    document.getElementById('show-hospitales').addEventListener('change', function() {
-      if (this.checked) map.addLayer(hospitalesLayer); else map.removeLayer(hospitalesLayer);
-    });
 
     // MARCADORES MANUALES DE HOSPITALES
     const hospitalesData = [
@@ -317,22 +367,71 @@
          .addTo(hospitalesLayer);
     });
 
-    // CARGAR EESS (CSV)
+    // ==========================================
+    // 5. ICONOS DINÁMICOS Y LEYENDA (Nuevas Funciones)
+    // ==========================================
+    function obtenerIconoBase(nombreEess) {
+      if (nombreEess === "C.S. MENTAL MIRONES BAJOS" || nombreEess === "C.S. MENTAL SAN MARCOS") {
+        return `<img src="iconos/mentales.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
+      } else if (nombreEess === "C.E. ANTIRABICO ZOONOSIS") {
+        return `<img src="iconos/rabia.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
+      } else if (nombreEess === "C.S. PATRUCO") {
+        return `<img src="iconos/hiv.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
+      }
+      return `<img src="iconos/centros.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
+    }
+
+    function actualizarLeyenda() {
+      const contenedorLeyenda = document.getElementById('leyenda-contenido');
+      if (!contenedorLeyenda) return;
+
+      var contentHtml = '';
+      var centros = Object.keys(coloresPoligonos);
+      
+      centros.sort(function(a, b) { return (eessNumeros[a] || 999) - (eessNumeros[b] || 999); });
+
+      for (var i = 0; i < centros.length; i++) {
+        var key = centros[i];
+        var nombreCorto = key.replace("C.S. ", "").replace("P.S. ", "").replace("C.ESPECIALIZADO ", "").replace("C.E. ", "");
+        var num = eessNumeros[key] || "";
+        var color = coloresPoligonos[key];
+        
+        var rutaIcono = 'iconos/centros.png';
+        if (key === "C.S. MENTAL MIRONES BAJOS" || key === "C.S. MENTAL SAN MARCOS") { rutaIcono = 'iconos/mentales.png'; } 
+        else if (key === "C.E. ANTIRABICO ZOONOSIS") { rutaIcono = 'iconos/rabia.png'; } 
+        else if (key === "C.S. PATRUCO") { rutaIcono = 'iconos/hiv.png'; }
+
+        contentHtml +=
+          `<div style="display:flex; align-items:center; background:#f8fafc; padding:6px 12px; border:1px solid #e2e8f0; border-radius:6px; min-width: 220px; flex: 1 1 auto;">
+            <img src="${rutaIcono}" style="width: 26px; height: 26px; margin-right: 6px; filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.2));">
+            <span style="background:${color}; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; border: 2px solid #fff; border-radius: 50%; font-size:11px; font-weight:bold; color:#1f2937; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">${num}</span> 
+            <span style="font-size:12px; font-weight:600; color:#334155;">${nombreCorto}</span>
+          </div>`;
+      }
+      contenedorLeyenda.innerHTML = contentHtml;
+    }
+
+    // ==========================================
+    // 6. CARGAR MARCADORES DE EESS (CSV)
+    // ==========================================
     Papa.parse("data_eess.csv", {
       download: true, header: true, delimiter: ";",
       complete: function(results) {
-        results.data.forEach(row => {
+        const data = results.data;
+        data.forEach(row => {
           if (row.COORDENADAS && row.RIS && row.EESS) {
             const [lat, lon] = row.COORDENADAS.split(",").map(coord => parseFloat(coord.trim()));
+
             if (!isNaN(lat) && !isNaN(lon)) {
               const eess = row.EESS.trim();
               const num = eessNumeros[eess] || "";
               const colorFondo = coloresPoligonos[eess] || "#007e9d";
+              const iconoDinamico = obtenerIconoBase(eess);
 
               const combinedIcon = L.divIcon({
                 className: 'combined-marker',
                 html: `<div style="display: flex; align-items: center; width: max-content;">
-                         <img src="marker-icon.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">
+                         ${iconoDinamico}
                          <div style="background-color: ${colorFondo}; color: #1f2937; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.4); font-size: 13px; margin-left: -8px; z-index: 10;">${num}</div>
                        </div>`,
                 iconSize: [60, 40], iconAnchor: [20, 40], popupAnchor: [0, -40]
@@ -350,14 +449,21 @@
             }
           }
         });
+
         Object.keys(risEessMap).sort().forEach(ris => {
-          const option = document.createElement("option"); option.value = ris; option.textContent = ris;
+          const option = document.createElement("option");
+          option.value = ris; option.textContent = ris;
           risSelect.appendChild(option);
         });
+
+        // Activa la leyenda externa
+        actualizarLeyenda();
       }
     });
 
-    // EVENTOS DE SELECCIÓN Y POLÍGONOS
+    // ==========================================
+    // 7. EVENTOS DE SELECCIÓN Y POLÍGONOS
+    // ==========================================
     risSelect.addEventListener("change", function() {
       const ris = this.value;
       eessSelect.innerHTML = `<option value="">Seleccione EESS</option>`; eessSelect.disabled = !ris;
@@ -385,7 +491,7 @@
     }
     
     function resetDistritoHighlight() {
-      if (distritosGeoLayer) distritosGeoLayer.eachLayer(layer => layer.setStyle({ color: "#555555", weight: 1.5, fillOpacity: 0, fillColor: "#cccccc" }));
+      if (typeof distritosGeoLayer !== 'undefined') distritosGeoLayer.eachLayer(layer => layer.setStyle({ color: "#555555", weight: 1.5, fillOpacity: 0, fillColor: "#cccccc" }));
     }
 
     function resetHighlightedPolygon() {
@@ -400,24 +506,29 @@
     function clearAllFilters() {
       risSelect.value = ""; eessSelect.innerHTML = `<option value="">Seleccione EESS</option>`; eessSelect.disabled = true;
       distritoSelect.value = ""; schoolSearchInput.value = ""; schoolSearchResults.innerHTML = ""; schoolSearchResults.classList.remove("active");
-      document.getElementById("show-colegios").checked = true; document.getElementById("show-iglesias").checked = true; document.getElementById("show-mercados").checked = true; document.getElementById("show-hospitales").checked = true;
-      if (!map.hasLayer(colegiosLayer)) map.addLayer(colegiosLayer);
-      if (!map.hasLayer(iglesiasLayer)) map.addLayer(iglesiasLayer);
-      if (!map.hasLayer(mercadosLayer)) map.addLayer(mercadosLayer);
-      if (!map.hasLayer(hospitalesLayer)) map.addLayer(hospitalesLayer);
+      document.getElementById("show-colegios").checked = false; document.getElementById("show-iglesias").checked = false; document.getElementById("show-mercados").checked = false; 
+      
+      map.removeLayer(colegiosLayer); map.removeLayer(iglesiasLayer); map.removeLayer(mercadosLayer);
+      
       resetDistritoHighlight(); resetHighlightedPolygon(); map.closePopup(); map.setView([-12.0464, -77.0428], 13);
     }
     clearFiltersBtn.addEventListener("click", clearAllFilters);
     
+
+
+
     // CARGAR GEOJSON DE EESS
-    fetch("DIRISLC_CENTROS_2.geojson")
+   // CARGAR GEOJSON DE EESS
+    fetch("DIRISLC_CENTROS_5.geojson")
       .then(response => response.json())
       .then(geoData => {
         L.geoJSON(geoData, {
           style: feature => {
             const nombrePoligono = (feature.properties.EESS || "").trim().toUpperCase();
             const colorAsignado = coloresPoligonos[nombrePoligono] || "#0096ba";
-            return { color: "#ffffff", fillColor: colorAsignado, weight: 2, fillOpacity: 0.45 };
+            
+            // NUEVO: color negro (#000000) y grosor aumentado (weight: 3)
+            return { color: "#000000", fillColor: colorAsignado, weight: 1.5, fillOpacity: 0.45 };
           },
           onEachFeature: (feature, layer) => {
             if (feature.properties) {
@@ -433,9 +544,20 @@
                   routeLink = `<br><a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${lat},${lon}" target="_blank">Cómo llegar</a>`;
               }              
               const content = `<b>EESS:</b> ${eessName}<br><b>RIS:</b> ${feature.properties.RIS}<br><b>Distrito:</b> ${feature.properties.DISTRITO}<br><b>Ruta:</b> ${routeLink}`;
+              
               layer.bindTooltip(content, { permanent: false, direction: "auto", opacity: 0.9 });
-              layer.on("mouseover", function() { if (layer !== currentHighlightedPolygon) layer.setStyle({ weight: 3, color: "#333333", fillOpacity: 0.7 }); });
-              layer.on("mouseout", function() { if (layer !== currentHighlightedPolygon) layer.setStyle({ weight: 2, color: "#ffffff", fillColor: colorAsignado, fillOpacity: 0.45 }); });
+              
+              // Al pasar el mouse encima (Hover)
+              layer.on("mouseover", function() { 
+                if (layer !== currentHighlightedPolygon) layer.setStyle({ weight: 4, color: "#333333", fillOpacity: 0.7 }); 
+              });
+              
+              // Al quitar el mouse, regresa al nuevo borde negro grueso
+              layer.on("mouseout", function() { 
+                if (layer !== currentHighlightedPolygon) layer.setStyle({ weight: 3, color: "#000000", fillColor: colorAsignado, fillOpacity: 0.45 }); 
+              });
+              
+              // Al hacer clic
               layer.on("click", function() {
                 if (eessName) {
                   let risFound = "";
@@ -454,7 +576,14 @@
       })
       .catch(error => console.error("Error cargando GeoJSON:", error));
 
-    // CARGAR COLEGIOS, IGLESIAS, MERCADOS Y DISTRITOS
+
+
+
+
+
+
+
+    // CARGAR COLEGIOS
     Papa.parse("data_cole.csv", {
       download: true, header: true, delimiter: ";",
       complete: function(results) {
@@ -517,6 +646,8 @@
     });
     document.addEventListener("click", function(e) { if (!schoolSearchInput.contains(e.target) && !schoolSearchResults.contains(e.target)) schoolSearchResults.classList.remove("active"); });   
     
+    // CARGAR GEOJSON DE DISTRITOS
+    var distritosGeoLayer;
     fetch("DIRISLC_DISTRITOS.geojson")
       .then(response => response.json())
       .then(geoData => {
@@ -535,6 +666,7 @@
         });
       }).catch(error => console.error("Error cargando GeoJSON de distritos:", error));
 
+    // CARGAR IGLESIAS
     Papa.parse("iglesias2.csv", {
       download: true, header: true, delimiter: ";",
       complete: function(results) {
@@ -551,6 +683,7 @@
       }
     });
 
+    // CARGAR MERCADOS
     Papa.parse("mercados.csv", {
       download: true, header: true, delimiter: ";",
       complete: function(results) {
@@ -567,7 +700,9 @@
       }
     });  
 
-    // TOOLTIPS Y BOTONES UI
+    // ==========================================
+    // 8. TOOLTIPS, BOTONES UI Y PALETA DE COLORES
+    // ==========================================
     const infoBtn = document.getElementById("info-escalE");
     const infoTooltip = document.getElementById("tooltip-escalE");
     if (infoBtn && infoTooltip) {
@@ -585,61 +720,6 @@
       });
     }
 
-    // LEYENDA ORDENADA NUMÉRICAMENTE CON BOTÓN OCULTAR
-    var legendDiv = null;
-    var legend = L.control({position: 'bottomright'});
-    var legendExpanded = true;
-
-    function actualizarLeyenda() {
-      if (!legendDiv) return;
-      var iconBtn = legendExpanded ? '−' : '+';
-      var displayContent = legendExpanded ? 'block' : 'none';
-
-      var headerHtml = '<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ccc; padding-bottom:4px; margin-bottom:8px;">' +
-                         '<h4 style="margin:0; font-size:14px; margin-right: 15px;">Leyenda de EESS</h4>' +
-                         '<button id="toggle-legend-btn" style="background:#e2e8f0; border:none; border-radius:4px; cursor:pointer; font-size:14px; font-weight:bold; padding:2px 8px; color:#0f172a;">' + iconBtn + '</button>' +
-                       '</div>';
-
-      var contentHtml = '<div id="legend-content" style="display:' + displayContent + ';">';
-      
-      var centros = Object.keys(coloresPoligonos);
-      centros.sort(function(a, b) { return (eessNumeros[a] || 999) - (eessNumeros[b] || 999); });
-
-      for (var i = 0; i < centros.length; i++) {
-        var key = centros[i];
-        var nombreCorto = key.replace("C.S. ", "").replace("P.S. ", "").replace("C.ESPECIALIZADO ", "").replace("C.E. ", "");
-        var num = eessNumeros[key] || "";
-        var color = coloresPoligonos[key];
-        
-        contentHtml +=
-          '<div style="display:flex; align-items:center; margin-bottom:5px;">' +
-            '<span style="background:' + color + '; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; border: 2px solid #fff; border-radius: 50%; font-size:11px; font-weight:bold; color:#1f2937; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">' + num + '</span> ' +
-            '<span style="font-size:12px; font-weight:500;">' + nombreCorto + '</span>' +
-          '</div>';
-      }
-      contentHtml += '</div>';
-      legendDiv.innerHTML = headerHtml + contentHtml;
-
-      setTimeout(function() {
-        var btn = document.getElementById('toggle-legend-btn');
-        if(btn) { btn.addEventListener('click', function(e) { e.stopPropagation(); legendExpanded = !legendExpanded; actualizarLeyenda(); }); }
-      }, 0);
-    }
-
-    legend.onAdd = function (map) {
-      legendDiv = L.DomUtil.create('div', 'info legend');
-      legendDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-      legendDiv.style.padding = '10px 15px';
-      legendDiv.style.borderRadius = '8px';
-      legendDiv.style.border = '2px solid rgba(0,0,0,0.2)';
-      legendDiv.style.boxShadow = '0 0 15px rgba(0,0,0,0.2)';
-      legendDiv.style.color = '#333';
-      actualizarLeyenda();
-      return legendDiv;
-    };
-    legend.addTo(map);
-
-    // PALETA DE COLORES DINÁMICA
     const colorContainer = document.getElementById('color-palette-container');
     const toggleColorsBtn = document.getElementById('toggle-colors');
 
@@ -669,24 +749,25 @@
 
           if (eessMarkers[eess]) {
             const num = eessNumeros[eess];
+            const iconoBaseStr = obtenerIconoBase(eess); 
+            
             const updatedIcon = L.divIcon({
               className: 'combined-marker',
               html: `<div style="display: flex; align-items: center; width: max-content;">
-                       <img src="marker-icon.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">
+                       ${iconoBaseStr}
                        <div style="background-color: ${newColor}; color: #1f2937; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.4); font-size: 13px; margin-left: -8px; z-index: 10;">${num}</div>
                      </div>`,
               iconSize: [60, 40], iconAnchor: [20, 40], popupAnchor: [0, -40]
             });
             eessMarkers[eess].marker.setIcon(updatedIcon);
           }
-          actualizarLeyenda();
+          actualizarLeyenda(); 
         });
 
         rowDiv.appendChild(label); rowDiv.appendChild(colorPicker); colorContainer.appendChild(rowDiv);
       });
     }
 
-    // BOTÓN DE IMPRESIÓN PDF
     const btnPrint = document.getElementById('btn-print');
     if (btnPrint) {
       btnPrint.addEventListener('click', function() {
@@ -702,6 +783,96 @@
         }, 500);
       });
     }
+
+
+// ==========================================
+    // BOTÓN PARA OCULTAR/MOSTRAR LEYENDA EXTERNA
+    // ==========================================
+    const btnToggleLeyenda = document.getElementById('btn-toggle-leyenda');
+    const leyendaContenido = document.getElementById('leyenda-contenido');
+
+    if (btnToggleLeyenda && leyendaContenido) {
+      btnToggleLeyenda.addEventListener('click', function() {
+        if (leyendaContenido.style.display === 'none') {
+          leyendaContenido.style.display = 'flex';
+          btnToggleLeyenda.textContent = 'Ocultar';
+          btnToggleLeyenda.style.background = '#e2e8f0';
+          btnToggleLeyenda.style.color = '#334155';
+        } else {
+          leyendaContenido.style.display = 'none';
+          btnToggleLeyenda.textContent = 'Mostrar Leyenda';
+          btnToggleLeyenda.style.background = '#0ea5e9'; // Botón azul al estar oculto
+          btnToggleLeyenda.style.color = '#ffffff';
+        }
+      });
+    }
+
+
+
+    // ==========================================
+    // NUEVO: CAPTURA DE PANTALLA ULTRA HD
+    // ==========================================
+    const btnCapturaHD = document.getElementById('btn-captura-hd');
+    
+    if (btnCapturaHD) {
+      btnCapturaHD.addEventListener('click', function () {
+        const mapElement = document.getElementById('map');
+        const btn = this;
+        
+        // Cambiamos el texto para que el usuario sepa que está cargando
+        btn.textContent = 'Generando captura (Espere)...';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+
+        // Opciones de exportación de html-to-image
+        htmlToImage.toPng(mapElement, {
+          quality: 1.0,
+          pixelRatio: 2, // 2 = Doble resolución (Alta definición)
+          filter: function (node) {
+            // Esto oculta los botones de zoom (+/-) de la foto final
+            return !node.classList || !node.classList.contains('leaflet-control-zoom');
+          }
+        })
+        .then(function (dataUrl) {
+          // Crea un enlace invisible y fuerza la descarga
+          const link = document.createElement('a');
+          link.download = 'mapa_jurisdiccion_ris1.png';
+          link.href = dataUrl;
+          link.click();
+
+          // Restaura el botón
+          btn.textContent = 'Descargar Mapa (Ultra HD)';
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        })
+        .catch(function (error) {
+          console.error('Error al generar la captura:', error);
+          alert('Ocurrió un error al capturar el mapa. Asegúrate de que el servidor permita exportar las imágenes (CORS).');
+          btn.textContent = 'Descargar Mapa (Ultra HD)';
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        });
+      });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   </script>
+
+
+
 </body>
 </html>

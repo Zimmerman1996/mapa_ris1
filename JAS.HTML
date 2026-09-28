@@ -1,0 +1,103 @@
+<header class="topbar">
+  <div class="topbar-container">
+    <div class="topbar-left"></div>
+    <div class="topbar-center">
+      <h1>RIS 1</h1>
+    </div>
+    <div class="topbar-center">
+      <h1>Mapa de Establecimientos de Salud e Instituciones Educativas</h1>
+      <p>Jurisdicción de la Dirección de Redes Integradas de Salud Lima Centro</p>
+    </div>
+    <div class="topbar-right"></div>
+  </div>
+</header>
+
+<main class="content-wrapper">
+  <aside class="sidebar">
+    <h3>Filtros de consulta</h3>
+
+    <div class="sidebar-section">
+      <span class="sidebar-section-title">Red Integrada de Salud</span>
+      <label for="ris-select">RIS</label>
+      <select id="ris-select">
+        <option value="RIS 1">RIS 1</option>
+      </select> 
+    </div>
+
+    <div class="sidebar-section">
+      <span class="sidebar-section-title">Establecimiento de Salud</span>
+      <label for="eess-select">EESS</label>
+      <select id="eess-select">
+        <option value="">Seleccione EESS</option>
+        <option value="C.S. CONDE DE LA VEGA BAJA">C.S. CONDE DE LA VEGA BAJA</option>
+        <option value="C.S. JUAN PEREZ CARRANZA">C.S. JUAN PEREZ CARRANZA</option>
+        <option value="C.S. MIRONES">C.S. MIRONES</option>
+        <option value="C.S. MIRONES BAJO">C.S. MIRONES BAJO</option>
+        <option value="C.S. SAN SEBASTIAN">C.S. SAN SEBASTIAN</option>
+        <option value="C.S. UNIDAD VECINAL N° 3">C.S. UNIDAD VECINAL N° 3</option>
+        <option value="C.S. VILLA MARIA PERPETUO SOCORRO">C.S. VILLA MARIA PERPETUO SOCORRO</option>
+        <option value="P.S. JARDIN ROSA DE SANTA MARIA">P.S. JARDIN ROSA DE SANTA MARIA</option>
+        <option value="P.S. PALERMO">P.S. PALERMO</option>
+        <option value="P.S. RESCATE">P.S. RESCATE</option>
+        <option value="P.S. SANTA ROSA">P.S. SANTA ROSA</option>
+      </select>
+    </div>
+
+    <div class="sidebar-section">
+      <span class="sidebar-section-title">Ubicación</span>
+      <label for="distrito-select">Distrito</label>
+      <select id="distrito-select">
+        <option value="">Todos los distritos</option>
+        <option value="BREÑA">BREÑA</option>
+        <option value="JESUS MARIA">JESUS MARIA</option>
+        <option value="LA VICTORIA">LA VICTORIA</option>
+        <option value="LIMA">LIMA</option>
+        <option value="LINCE">LINCE</option>
+        <option value="MAGDALENA DEL MAR">MAGDALENA DEL MAR</option>
+        <option value="MIRAFLORES">MIRAFLORES</option>
+        <option value="PUEBLO LIBRE">PUEBLO LIBRE</option>
+        <option value="SAN BORJA">SAN BORJA</option>
+        <option value="SAN ISIDRO">SAN ISIDRO</option>
+        <option value="SAN JUAN DE LURIGANCHO">SAN JUAN DE LURIGANCHO</option>
+        <option value="SAN LUIS">SAN LUIS</option>
+        <option value="SAN MIGUEL">SAN MIGUEL</option>
+        <option value="SURQUILLO">SURQUILLO</option>
+      </select>
+    </div>
+
+    <div class="sidebar-section">
+      <span class="sidebar-section-title">Institución educativa</span>
+      <label for="school-search">Buscar colegio</label>
+      <input type="text" id="school-search" placeholder="Escriba nombre de institución educativa" autocomplete="off">
+      <div id="school-search-results" class="school-search-results"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <span class="sidebar-section-title">Capas temáticas</span>
+      <div class="layer-controls">
+        <label class="layer-option"><input type="checkbox" id="show-colegios"> <span>Mostrar colegios</span></label>
+        <label class="layer-option"><input type="checkbox" id="show-iglesias"> <span>Mostrar iglesias</span></label>
+        <label class="layer-option"><input type="checkbox" id="show-mercados"> <span>Mostrar mercados</span></label>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="action-buttons">
+        <button type="button" id="clear-filters" class="btn-secondary">Limpiar filtros</button>
+      </div>
+    </div>
+  </aside>
+
+  <section class="map-panel" style="display: flex; flex-direction: column; height: 90vh; padding: 10px;">
+    <div id="map" style="flex: 1; border-radius: 10px; width: 100%; min-height: 60vh; border: 1px solid #cbd5e1; z-index: 1;"></div>
+    
+    <div id="leyenda-externa" style="margin-top: 15px; padding: 15px; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); max-height: 25vh; overflow-y: auto;">
+      <h4 style="margin: 0 0 10px 0; color: #0f172a; font-size: 15px; font-weight: bold;">Leyenda de Establecimientos de Salud</h4>
+      <div id="leyenda-contenido" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer-bar">
+  Desarrollado por <strong>RIS 1 - DIRIS Lima Centro</strong>
+</footer>
