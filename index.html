@@ -83,9 +83,6 @@
           <span class="sidebar-section-title">Personalizar Colores</span>
           <button type="button" id="toggle-colors" class="btn-secondary" style="margin-bottom: 10px;">Mostrar Paleta de Centros</button>
           
-
-
-
           <div id="color-palette-container" style="display: none; max-height: 180px; overflow-y: auto; border: 1px solid #cbd5e1; padding: 10px; border-radius: 10px; background: #f8fafc;">
           </div>
 
@@ -161,20 +158,13 @@
           <div class="action-buttons">
             <button type="button" id="clear-filters" class="btn-secondary">Limpiar filtros</button>
          
-         
          <!-- NUEVO BOTÓN PARA CAPTURA -->
         <button type="button" id="btn-captura-hd" class="btn-secondary" style="background: #0284c7; color: white; margin-top: 10px; border: none;">
           Descargar Mapa (Ultra HD)
         </button>
-         
-         
-         
-         
           </div>
         </div>
       </aside>
-
-
 
 <!-- SECCIÓN DEL MAPA -->
 <section class="map-panel" style="display: flex; flex-direction: column; width: 100%; min-height: 95vh; padding: 10px;">
@@ -182,23 +172,18 @@
     <!-- Mapa redimensionado (Mucho más alto y ancho) -->
     <div id="map" style="flex: 1; border-radius: 10px; width: 100%; min-height: 85vh; border: 1px solid #cbd5e1; z-index: 1;"></div>
     
-    <!-- Leyenda externa empujada hacia abajo -->
-    <div id="leyenda-externa" style="margin-top: 20px; padding: 15px; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <h4 style="margin: 0; color: #0f172a; font-size: 15px; font-weight: bold;">Leyenda de Establecimientos de Salud</h4>
-        <button id="btn-toggle-leyenda" style="background: #e2e8f0; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; color: #334155; transition: background 0.2s;">
+    <!-- Leyenda externa ajustada a la izquierda y con diseño compacto -->
+    <div id="leyenda-externa" style="margin-top: 15px; padding: 10px 15px; background: #ffffff; border: 1px solid #333; width: fit-content; min-width: 280px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h4 style="margin: 0; color: #0033a0; font-size: 14px; font-weight: bold; text-transform: uppercase;">Leyenda</h4>
+        <button id="btn-toggle-leyenda" style="background: transparent; border: none; padding: 0; cursor: pointer; font-size: 11px; font-weight: bold; color: #555; text-decoration: underline;">
           Ocultar
         </button>
       </div>
-      <div id="leyenda-contenido" style="display: flex; flex-wrap: wrap; gap: 10px; max-height: 20vh; overflow-y: auto;"></div>
+      <div id="leyenda-contenido" style="display: flex; flex-direction: column; gap: 10px; max-height: 35vh; overflow-y: auto; padding-right: 10px;"></div>
     </div>
     
   </section>
-
-
-
-
-
 
     </main>
 
@@ -224,17 +209,6 @@ detectRetina: true ,
        crossOrigin: true
     }).addTo(map);
 
-
-
-
-
-
-
-
-
-
-
-
     // ==========================================
     // 2. DEFINICIÓN DE ICONOS (Colegios, Iglesias, Mercados, Hospitales)
     // ==========================================
@@ -253,8 +227,9 @@ detectRetina: true ,
       iconSize: [32, 45], className: 'svg-icon', iconAnchor: [6, 14], popupAnchor: [0, -20]
     });
 
+    // Nuevo Icono de Hospital
     var hospitalIcon = L.icon({
-      iconUrl: 'iconos/hospital.png',
+      iconUrl: 'iconos/hospital2.png',
       iconSize: [40, 40],
       iconAnchor: [20, 40],
       popupAnchor: [0, -40]
@@ -368,47 +343,68 @@ detectRetina: true ,
     });
 
     // ==========================================
-    // 5. ICONOS DINÁMICOS Y LEYENDA (Nuevas Funciones)
+    // 5. ICONOS DINÁMICOS Y LEYENDA AGRUPADA (Nuevas Funciones)
     // ==========================================
     function obtenerIconoBase(nombreEess) {
       if (nombreEess === "C.S. MENTAL MIRONES BAJOS" || nombreEess === "C.S. MENTAL SAN MARCOS") {
         return `<img src="iconos/mentales.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
       } else if (nombreEess === "C.E. ANTIRABICO ZOONOSIS") {
-        return `<img src="iconos/rabia.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
+        return `<img src="iconos/huellas10.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
       } else if (nombreEess === "C.S. PATRUCO") {
         return `<img src="iconos/hiv.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
       }
       return `<img src="iconos/centros.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
     }
 
+    // NUEVA FUNCIÓN DE LEYENDA (MÁS COMPACTA Y ALINEADA A LA IZQUIERDA)
     function actualizarLeyenda() {
       const contenedorLeyenda = document.getElementById('leyenda-contenido');
       if (!contenedorLeyenda) return;
 
-      var contentHtml = '';
-      var centros = Object.keys(coloresPoligonos);
-      
-      centros.sort(function(a, b) { return (eessNumeros[a] || 999) - (eessNumeros[b] || 999); });
+      // Agrupación de centros
+      const mentales = ["C.S. MENTAL MIRONES BAJOS", "C.S. MENTAL SAN MARCOS"];
+      const especializados = ["C.S. PATRUCO", "C.E. ANTIRABICO ZOONOSIS"];
+      const centrosSalud = Object.keys(coloresPoligonos).filter(k => !mentales.includes(k) && !especializados.includes(k));
 
-      for (var i = 0; i < centros.length; i++) {
-        var key = centros[i];
-        var nombreCorto = key.replace("C.S. ", "").replace("P.S. ", "").replace("C.ESPECIALIZADO ", "").replace("C.E. ", "");
-        var num = eessNumeros[key] || "";
-        var color = coloresPoligonos[key];
+      // Ordenar por números
+      centrosSalud.sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999));
+      mentales.sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999));
+      especializados.sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999));
+
+      function buildGroup(title, keys) {
+        if(keys.length === 0) return '';
+        // Inusar ti grid tapno agbalin a naurnos a listaan a kasla ti ladawan
+        let html = `<div style="width: 100%; margin-bottom: 6px;">
+                      <h5 style="margin: 0 0 4px 0; font-size: 11px; color: #333; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 2px;">${title}</h5>
+                      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 2px 10px;">`;
         
-        var rutaIcono = 'iconos/centros.png';
-        if (key === "C.S. MENTAL MIRONES BAJOS" || key === "C.S. MENTAL SAN MARCOS") { rutaIcono = 'iconos/mentales.png'; } 
-        else if (key === "C.E. ANTIRABICO ZOONOSIS") { rutaIcono = 'iconos/rabia.png'; } 
-        else if (key === "C.S. PATRUCO") { rutaIcono = 'iconos/hiv.png'; }
+        for (let i = 0; i < keys.length; i++) {
+          let key = keys[i];
+          let nombreCorto = key.replace("C.S. ", "").replace("P.S. ", "").replace("C.ESPECIALIZADO ", "").replace("C.E. ", "");
+          let num = eessNumeros[key] || "";
+          let color = coloresPoligonos[key];
+          
+          let rutaIcono = 'iconos/centros.png';
+          if (mentales.includes(key)) { rutaIcono = 'iconos/mentales.png'; } 
+          else if (key === "C.E. ANTIRABICO ZOONOSIS") { rutaIcono = 'iconos/rabia.png'; } 
+          else if (key === "C.S. PATRUCO") { rutaIcono = 'iconos/hiv.png'; }
 
-        contentHtml +=
-          `<div style="display:flex; align-items:center; background:#f8fafc; padding:6px 12px; border:1px solid #e2e8f0; border-radius:6px; min-width: 220px; flex: 1 1 auto;">
-            <img src="${rutaIcono}" style="width: 26px; height: 26px; margin-right: 6px; filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.2));">
-            <span style="background:${color}; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; border: 2px solid #fff; border-radius: 50%; font-size:11px; font-weight:bold; color:#1f2937; box-shadow: 0 1px 3px rgba(0,0,0,0.3);">${num}</span> 
-            <span style="font-size:12px; font-weight:600; color:#334155;">${nombreCorto}</span>
-          </div>`;
+          // Basbassit nga icons (14px) ken awan ti uneg a kahon
+          html +=
+            `<div style="display:flex; align-items:center; justify-content: flex-start; padding: 2px 0;">
+              <img src="${rutaIcono}" style="width: 14px; height: 14px; margin-right: 4px;">
+              <span style="background:${color}; width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center; margin-right: 6px; border: 1px solid #666; border-radius: 50%; font-size: 8px; font-weight:bold; color:#000;">${num}</span> 
+              <span style="font-size:10px; color:#111; line-height: 1;">${nombreCorto}</span>
+            </div>`;
+        }
+        html += `</div></div>`;
+        return html;
       }
-      contenedorLeyenda.innerHTML = contentHtml;
+
+      contenedorLeyenda.innerHTML = 
+        buildGroup("Centros y Puestos de Salud", centrosSalud) + 
+        buildGroup("CSMC", mentales) + 
+        buildGroup("Especializados", especializados);
     }
 
     // ==========================================
@@ -431,9 +427,9 @@ detectRetina: true ,
               const combinedIcon = L.divIcon({
                 className: 'combined-marker',
                 html: `<div style="display: flex; align-items: center; width: max-content;">
-                         ${iconoDinamico}
-                         <div style="background-color: ${colorFondo}; color: #1f2937; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.4); font-size: 13px; margin-left: -8px; z-index: 10;">${num}</div>
-                       </div>`,
+                          ${iconoDinamico}
+                          <div style="background-color: ${colorFondo}; color: #1f2937; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.4); font-size: 13px; margin-left: -8px; z-index: 10;">${num}</div>
+                        </div>`,
                 iconSize: [60, 40], iconAnchor: [20, 40], popupAnchor: [0, -40]
               });
 
@@ -456,7 +452,7 @@ detectRetina: true ,
           risSelect.appendChild(option);
         });
 
-        // Activa la leyenda externa
+        // Activa la leyenda externa agrupada
         actualizarLeyenda();
       }
     });
@@ -515,10 +511,7 @@ detectRetina: true ,
     clearFiltersBtn.addEventListener("click", clearAllFilters);
     
 
-
-
     // CARGAR GEOJSON DE EESS
-   // CARGAR GEOJSON DE EESS
     fetch("DIRISLC_CENTROS_5.geojson")
       .then(response => response.json())
       .then(geoData => {
@@ -527,7 +520,6 @@ detectRetina: true ,
             const nombrePoligono = (feature.properties.EESS || "").trim().toUpperCase();
             const colorAsignado = coloresPoligonos[nombrePoligono] || "#0096ba";
             
-            // NUEVO: color negro (#000000) y grosor aumentado (weight: 3)
             return { color: "#000000", fillColor: colorAsignado, weight: 1.5, fillOpacity: 0.45 };
           },
           onEachFeature: (feature, layer) => {
@@ -547,17 +539,14 @@ detectRetina: true ,
               
               layer.bindTooltip(content, { permanent: false, direction: "auto", opacity: 0.9 });
               
-              // Al pasar el mouse encima (Hover)
               layer.on("mouseover", function() { 
                 if (layer !== currentHighlightedPolygon) layer.setStyle({ weight: 4, color: "#333333", fillOpacity: 0.7 }); 
               });
               
-              // Al quitar el mouse, regresa al nuevo borde negro grueso
               layer.on("mouseout", function() { 
                 if (layer !== currentHighlightedPolygon) layer.setStyle({ weight: 3, color: "#000000", fillColor: colorAsignado, fillOpacity: 0.45 }); 
               });
               
-              // Al hacer clic
               layer.on("click", function() {
                 if (eessName) {
                   let risFound = "";
@@ -575,13 +564,6 @@ detectRetina: true ,
         }).addTo(map);
       })
       .catch(error => console.error("Error cargando GeoJSON:", error));
-
-
-
-
-
-
-
 
     // CARGAR COLEGIOS
     Papa.parse("data_cole.csv", {
@@ -796,13 +778,11 @@ detectRetina: true ,
         if (leyendaContenido.style.display === 'none') {
           leyendaContenido.style.display = 'flex';
           btnToggleLeyenda.textContent = 'Ocultar';
-          btnToggleLeyenda.style.background = '#e2e8f0';
-          btnToggleLeyenda.style.color = '#334155';
+          btnToggleLeyenda.style.color = '#555';
         } else {
           leyendaContenido.style.display = 'none';
           btnToggleLeyenda.textContent = 'Mostrar Leyenda';
-          btnToggleLeyenda.style.background = '#0ea5e9'; // Botón azul al estar oculto
-          btnToggleLeyenda.style.color = '#ffffff';
+          btnToggleLeyenda.style.color = '#0ea5e9';
         }
       });
     }
@@ -854,25 +834,6 @@ detectRetina: true ,
         });
       });
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   </script>
-
-
-
 </body>
 </html>
