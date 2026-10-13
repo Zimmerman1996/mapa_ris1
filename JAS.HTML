@@ -1,103 +1,893 @@
-<header class="topbar">
-  <div class="topbar-container">
-    <div class="topbar-left"></div>
-    <div class="topbar-center">
-      <h1>RIS 1</h1>
-    </div>
-    <div class="topbar-center">
-      <h1>Mapa de Establecimientos de Salud e Instituciones Educativas</h1>
-      <p>Jurisdicción de la Dirección de Redes Integradas de Salud Lima Centro</p>
-    </div>
-    <div class="topbar-right"></div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de EESS e Instituciones Educativas - RIS 1 - DIRIS Lima Centro</title>
+  <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+  <!-- ESTILOS -->
+  <link rel="stylesheet" href="styles/styles.css">
+
+  <!-- ESTILOS EXCLUSIVOS PARA CUANDO SE EXPORTA A PDF / IMPRIME -->
+  <style>
+    @media print {
+      @page { size: landscape; margin: 1cm; }
+      .sidebar, .topbar-right, .footer-bar, .info-wrapper, .leaflet-control-zoom {
+        display: none !important;
+      }
+      .app-shell, .content-wrapper {
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .map-panel {
+        width: 100% !important;
+        height: 100% !important;
+        box-shadow: none !important;
+      }
+      #map {
+        height: 75vh !important;
+        border: 2px solid #000;
+      }
+      .combined-marker {
+        background: transparent;
+        border: none;
+      }
+    }
+    .combined-marker {
+      background: none;
+      border: none;
+    }
+  </style>
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-L6BQXE1L02"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-L6BQXE1L02');
+  </script>
+</head>
+
+<body class="">
+  <div class="app-shell">
+
+    <header class="topbar" style="padding: 8px 18px;">
+      <div class="topbar-inner">
+        <div class="topbar-center" style="flex: 1; text-align: center;">
+          <h1 style="font-size: 20px; margin: 0;">RIS 1 - Mapa de EESS e Instituciones Educativas</h1>
+          <p style="font-size: 14px; margin: 4px 0 0; opacity: 0.9;">Jurisdicción de la DIRIS Lima Centro</p>
+        </div>
+
+        <div class="topbar-right" style="display: flex; gap: 8px;">
+          <button id="btn-print" style="padding: 6px 12px; background: #e2e8f0; color: #0f172a; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 13px;">
+            🖨️ Exportar a PDF
+          </button>
+          <button id="toggle-sidebar" style="padding: 6px 12px; background: #ffffff; color: #007e9d; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 13px;">
+            Ocultar Filtros
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="content-wrapper">
+      <aside class="sidebar" style="width: 250px; min-width: 250px; padding: 14px;">
+
+        <div class="sidebar-section">
+          <span class="sidebar-section-title">Personalizar Colores</span>
+          <button type="button" id="toggle-colors" class="btn-secondary" style="margin-bottom: 10px;">Mostrar Paleta de Centros</button>
+          
+          <div id="color-palette-container" style="display: none; max-height: 180px; overflow-y: auto; border: 1px solid #cbd5e1; padding: 10px; border-radius: 10px; background: #f8fafc;">
+          </div>
+
+          <span class="sidebar-section-title">Red Integrada de Salud</span>
+          <label for="ris-select">RIS</label>
+          <select id="ris-select">
+            <option value="RIS 1">RIS 1</option>
+          </select> 
+        </div>
+
+        <div class="sidebar-section">
+          <span class="sidebar-section-title">Establecimiento de Salud</span>
+          <label for="eess-select">EESS</label>
+          <select id="eess-select">
+            <option value="">Seleccione EESS</option>
+            <option value="C.S. CONDE DE LA VEGA BAJA">C.S. CONDE DE LA VEGA BAJA</option>
+            <option value="C.S. JUAN PEREZ CARRANZA">C.S. JUAN PEREZ CARRANZA</option>
+            <option value="C.S. MIRONES">C.S. MIRONES</option>
+            <option value="C.S. MIRONES BAJO">C.S. MIRONES BAJO</option>
+            <option value="C.S. SAN SEBASTIAN">C.S. SAN SEBASTIAN</option>
+            <option value="C.S. UNIDAD VECINAL N° 3">C.S. UNIDAD VECINAL N° 3</option>
+            <option value="C.S. VILLA MARIA PERPETUO SOCORRO">C.S. VILLA MARIA PERPETUO SOCORRO</option>
+            <option value="P.S. JARDIN ROSA DE SANTA MARIA">P.S. JARDIN ROSA DE SANTA MARIA</option>
+            <option value="P.S. PALERMO">P.S. PALERMO</option>
+            <option value="P.S. RESCATE">P.S. RESCATE</option>
+            <option value="P.S. SANTA ROSA">P.S. SANTA ROSA</option>
+            <option value="C.S.M.C MENTAL MIRONES BAJOS">C.S.M.C Mirones Bajos</option>
+            <option value="C.S.M.C MENTAL SAN MARCOS">C.S.M.C San Marcos</option>
+            <option value="C.S. PATRUCO">C.S. PATRUCO</option>
+            <option value="C.E. ANTIRABICO ZOONOSIS">C.E. ANTIRABICO ZOONOSIS</option>
+            <option value="COMEDOR CENTRO DE ALIMENTACION Y NUTRICION N°1">COMEDOR CENTRO DE ALIMENTACION Y NUTRICION N°1</option>
+          </select>
+        </div>
+
+        <div class="sidebar-section">
+          <span class="sidebar-section-title">Ubicación</span>
+          <label for="distrito-select">Distrito</label>
+          <select id="distrito-select">
+            <option value="">Todos los distritos</option>
+            <option value="BREÑA">BREÑA</option><option value="JESUS MARIA">JESUS MARIA</option><option value="LA VICTORIA">LA VICTORIA</option><option value="LIMA">LIMA</option><option value="LINCE">LINCE</option><option value="MAGDALENA DEL MAR">MAGDALENA DEL MAR</option><option value="MIRAFLORES">MIRAFLORES</option><option value="PUEBLO LIBRE">PUEBLO LIBRE</option><option value="SAN BORJA">SAN BORJA</option><option value="SAN ISIDRO">SAN ISIDRO</option><option value="SAN JUAN DE LURIGANCHO">SAN JUAN DE LURIGANCHO</option><option value="SAN LUIS">SAN LUIS</option><option value="SAN MIGUEL">SAN MIGUEL</option><option value="SURQUILLO">SURQUILLO</option>
+          </select>
+        </div>
+
+        <div class="sidebar-section">
+          <span class="sidebar-section-title">Institución educativa</span>
+          <label for="school-search">Buscar colegio</label>
+          <input type="text" id="school-search" placeholder="Escriba nombre de institución educativa" autocomplete="off">
+          <div id="school-search-results" class="school-search-results"></div>
+        </div>
+
+        <div class="sidebar-section">
+          <span class="sidebar-section-title">Capas temáticas</span>
+          <div class="layer-controls">
+            <label class="layer-option">
+              <input type="checkbox" id="show-colegios">
+              <span>Mostrar colegios</span>
+            </label>
+            <label class="layer-option">
+              <input type="checkbox" id="show-iglesias">
+              <span>Mostrar iglesias</span>
+            </label>
+            <label class="layer-option">
+              <input type="checkbox" id="show-mercados">
+              <span>Mostrar mercados</span>
+            </label>
+            <label class="layer-option">
+              <input type="checkbox" id="show-hospitales" checked>
+              <span>Mostrar Hospitales</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="action-buttons">
+            <button type="button" id="clear-filters" class="btn-secondary">Limpiar filtros</button>
+           
+            <!-- BOTÓN PARA CAPTURA -->
+            <button type="button" id="btn-captura-hd" class="btn-secondary" style="background: #0284c7; color: white; margin-top: 10px; border: none;">
+              Descargar Mapa (Ultra HD)
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- SECCIÓN DEL MAPA -->
+      <section class="map-panel" style="display: flex; flex-direction: column; width: 100%; min-height: 95vh; padding: 10px; box-sizing: border-box;">
+          
+        <!-- Mapa redimensionado -->
+        <div id="map" style="flex: 1; border-radius: 10px; width: 100%; min-height: 78vh; border: 1px solid #cbd5e1; z-index: 1;"></div>
+          
+        <!-- Leyenda externa horizontal cubriendo todo el ancho -->
+        <div id="leyenda-externa" style="margin-top: 12px; padding: 12px 16px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%; box-sizing: border-box; box-shadow: 0 2px 5px rgba(0,0,0,0.08);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 6px;">
+            <h4 style="margin: 0; color: #0033a0; font-size: 14px; font-weight: bold; text-transform: uppercase;">Leyenda de Establecimientos (RIS 1)</h4>
+            <button id="btn-toggle-leyenda" style="background: transparent; border: none; padding: 0; cursor: pointer; font-size: 12px; font-weight: bold; color: #555; text-decoration: underline;">
+              Ocultar
+            </button>
+          </div>
+          <!-- Contenedor flex en fila (horizontal) -->
+          <div id="leyenda-contenido" style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 20px; width: 100%; align-items: flex-start; justify-content: space-between;"></div>
+        </div>
+          
+      </section>
+
+    </main>
+
+    <footer class="footer-bar">
+      Desarrollado por <strong>RIS 1 - DIRIS Lima Centro</strong>
+    </footer>
   </div>
-</header>
+  
+  <script>
+    // ==========================================
+    // 1. INICIALIZAR EL MAPA Y CAPA BASE
+    // ==========================================
+    var map = L.map("map", {
+      zoomSnap: 0.5,
+      zoomDelta: 0.5
+    }).setView([-12.0464, -77.0428], 13);
 
-<main class="content-wrapper">
-  <aside class="sidebar">
-    <h3>Filtros de consulta</h3>
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> - RIS 1 ',
+      detectRetina: true, 
+      crossOrigin: true
+    }).addTo(map);
 
-    <div class="sidebar-section">
-      <span class="sidebar-section-title">Red Integrada de Salud</span>
-      <label for="ris-select">RIS</label>
-      <select id="ris-select">
-        <option value="RIS 1">RIS 1</option>
-      </select> 
-    </div>
+    // ==========================================
+    // 2. DEFINICIÓN DE ICONOS (Colegios, Iglesias, Mercados, Hospitales)
+    // ==========================================
+    var smallIcon = L.divIcon({
+      html: `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="60" viewBox="0 0 24 24" fill="#007e9d"><path d="M12 2C8.1 2 5 5.1 5 9c0 5.3 7 13 7 13s7-7.7 7-13c0-3.9-3.1-7-7-7zm0 9.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 6.5 12 6.5 14.5 7.6 14.5 9 13.4 11.5 12 11.5z"/></svg>`,
+      iconSize: [18, 32], className: 'svg-icon', iconAnchor: [6, 20], popupAnchor: [0, -20]
+    });
 
-    <div class="sidebar-section">
-      <span class="sidebar-section-title">Establecimiento de Salud</span>
-      <label for="eess-select">EESS</label>
-      <select id="eess-select">
-        <option value="">Seleccione EESS</option>
-        <option value="C.S. CONDE DE LA VEGA BAJA">C.S. CONDE DE LA VEGA BAJA</option>
-        <option value="C.S. JUAN PEREZ CARRANZA">C.S. JUAN PEREZ CARRANZA</option>
-        <option value="C.S. MIRONES">C.S. MIRONES</option>
-        <option value="C.S. MIRONES BAJO">C.S. MIRONES BAJO</option>
-        <option value="C.S. SAN SEBASTIAN">C.S. SAN SEBASTIAN</option>
-        <option value="C.S. UNIDAD VECINAL N° 3">C.S. UNIDAD VECINAL N° 3</option>
-        <option value="C.S. VILLA MARIA PERPETUO SOCORRO">C.S. VILLA MARIA PERPETUO SOCORRO</option>
-        <option value="P.S. JARDIN ROSA DE SANTA MARIA">P.S. JARDIN ROSA DE SANTA MARIA</option>
-        <option value="P.S. PALERMO">P.S. PALERMO</option>
-        <option value="P.S. RESCATE">P.S. RESCATE</option>
-        <option value="P.S. SANTA ROSA">P.S. SANTA ROSA</option>
-      </select>
-    </div>
+    var smallIcon3 = L.divIcon({
+      html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 489.437"><path d="M266.132 425.011c-3.122 2.276-7.36 2.59-10.837.357-37.511-23.86-69.044-52.542-93.798-83.672-34.164-42.862-55.708-90.407-63.066-136.17-7.494-46.427-.492-91.074 22.613-127.381 9.098-14.361 20.738-27.429 34.922-38.715C188.57 13.428 225.811-.263 262.875.004c35.727.268 70.961 13.601 101.424 41.391 10.706 9.722 19.715 20.872 27.074 32.959 24.843 40.899 30.196 93.084 19.269 145.982-17.047 82.829-71.772 160.522-144.51 204.675zM266.003 74.554v18.452h21.888v21.48h-21.888v7.761l61.86 62.516-18.139 15.249-3.964-4.091v35.716h-38.116v-26.093h-24.028v26.1l-37.794-.007v-35.784l-3.962 4.159-18.145-15.249 60.811-61.457v-8.82h-20.838v-21.48h20.838V74.554h21.477zm-10.216 80.627c7.883 0 14.273 6.39 14.273 14.273s-6.39 14.273-14.273 14.273c-7.882 0-14.272-6.39-14.272-14.273s6.39-14.273 14.272-14.273zm.003-117.93c69.041 0 125.006 55.965 125.006 125.006S324.831 287.263 255.79 287.263s-125.006-55.965-125.006-125.006S186.749 37.251 255.79 37.251z" fill="#80118e"/></svg>`,
+      iconSize: [32, 45], className: 'svg-icon', iconAnchor: [6, 20], popupAnchor: [0, -20]
+    });
 
-    <div class="sidebar-section">
-      <span class="sidebar-section-title">Ubicación</span>
-      <label for="distrito-select">Distrito</label>
-      <select id="distrito-select">
-        <option value="">Todos los distritos</option>
-        <option value="BREÑA">BREÑA</option>
-        <option value="JESUS MARIA">JESUS MARIA</option>
-        <option value="LA VICTORIA">LA VICTORIA</option>
-        <option value="LIMA">LIMA</option>
-        <option value="LINCE">LINCE</option>
-        <option value="MAGDALENA DEL MAR">MAGDALENA DEL MAR</option>
-        <option value="MIRAFLORES">MIRAFLORES</option>
-        <option value="PUEBLO LIBRE">PUEBLO LIBRE</option>
-        <option value="SAN BORJA">SAN BORJA</option>
-        <option value="SAN ISIDRO">SAN ISIDRO</option>
-        <option value="SAN JUAN DE LURIGANCHO">SAN JUAN DE LURIGANCHO</option>
-        <option value="SAN LUIS">SAN LUIS</option>
-        <option value="SAN MIGUEL">SAN MIGUEL</option>
-        <option value="SURQUILLO">SURQUILLO</option>
-      </select>
-    </div>
+    var smallIcon4 = L.divIcon({
+      html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 489.437"><path d="M266.132 425.01c-3.122 2.276-7.36 2.59-10.837.358-37.511-23.86-69.044-52.542-93.797-83.673-34.165-42.861-55.709-90.407-63.066-136.169-7.494-46.428-.493-91.074 22.612-127.381 9.098-14.361 20.738-27.429 34.923-38.715C188.57 13.428 225.811-.263 262.875.004c35.727.268 70.961 13.601 101.423 41.391 10.707 9.722 19.716 20.872 27.075 32.959 24.843 40.898 30.195 93.084 19.269 145.982-17.047 82.828-71.772 160.521-144.51 204.674zM109.524 317.184c6.788 0 12.291 5.503 12.291 12.291s-5.503 12.291-12.291 12.291H71.37L33.265 464.855H477.89l-41.374-123.089h-28.585c-6.788 0-12.291-5.503-12.291-12.291s5.503-12.291 12.291-12.291h46.17L512 489.437H0l53.325-172.253h56.199zm77.29-186.755h13.169l32.231-36.104c2.864-3.208 7.827-3.49 11.035-.627v.003c3.211 2.863 3.49 7.83.627 11.038l-22.928 25.69h70.268l-22.932-25.69c-2.866-3.208-2.584-8.175.624-11.038h.003c3.208-2.866 8.172-2.584 11.038.624l32.229 36.106 12.591-.002.17.004 11.825.001c2.649 0 4.818 2.166 4.818 4.815v13.584a4.83 4.83 0 01-4.818 4.817h-10.233l-5.264 66.371c-.143 1.824-1.515 3.34-3.345 3.34H193.657c-1.831 0-3.198-1.51-3.342-3.34l-5.269-66.371h-10.23a4.83 4.83 0 01-4.818-4.817v-13.584c0-2.65 2.168-4.815 4.818-4.815l11.827-.001.171-.004zm91.635 25.827h15.228v44.027l-15.228.002v-44.029zm-29.629 0h15.223v44.027l-15.223.002v-44.029zm-29.631 0h15.228v44.027l-15.228.002v-44.029zM255.79 37.251c69.041 0 125.006 55.965 125.006 125.006S324.831 287.263 255.79 287.263s-125.006-55.965-125.006-125.006S186.749 37.251 255.79 37.251z" fill="#013220"/></svg>`,
+      iconSize: [32, 45], className: 'svg-icon', iconAnchor: [6, 14], popupAnchor: [0, -20]
+    });
 
-    <div class="sidebar-section">
-      <span class="sidebar-section-title">Institución educativa</span>
-      <label for="school-search">Buscar colegio</label>
-      <input type="text" id="school-search" placeholder="Escriba nombre de institución educativa" autocomplete="off">
-      <div id="school-search-results" class="school-search-results"></div>
-    </div>
+    // Nuevo Icono de Hospital
+    var hospitalIcon = L.icon({
+      iconUrl: 'iconos/hospital2.png',
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40]
+    });
 
-    <div class="sidebar-section">
-      <span class="sidebar-section-title">Capas temáticas</span>
-      <div class="layer-controls">
-        <label class="layer-option"><input type="checkbox" id="show-colegios"> <span>Mostrar colegios</span></label>
-        <label class="layer-option"><input type="checkbox" id="show-iglesias"> <span>Mostrar iglesias</span></label>
-        <label class="layer-option"><input type="checkbox" id="show-mercados"> <span>Mostrar mercados</span></label>
-      </div>
-    </div>
+    // ==========================================
+    // 3. VARIABLES DE ESTADO, NOMBRES Y COLORES SINCRONIZADOS
+    // ==========================================
+    const risSelect = document.getElementById("ris-select");
+    const eessSelect = document.getElementById("eess-select");
+    const distritoSelect = document.getElementById("distrito-select");
+    const schoolSearchInput = document.getElementById("school-search");
+    const schoolSearchResults = document.getElementById("school-search-results");
+    const clearFiltersBtn = document.getElementById("clear-filters");
 
-    <div class="sidebar-section">
-      <div class="action-buttons">
-        <button type="button" id="clear-filters" class="btn-secondary">Limpiar filtros</button>
-      </div>
-    </div>
-  </aside>
+    const eessMarkers = {};
+    const risEessMap = {};
+    const eessPolygons = {};
+    const distritoPolygons = {};
 
-  <section class="map-panel" style="display: flex; flex-direction: column; height: 90vh; padding: 10px;">
-    <div id="map" style="flex: 1; border-radius: 10px; width: 100%; min-height: 60vh; border: 1px solid #cbd5e1; z-index: 1;"></div>
+    const schoolIndex = [];
+    const schoolGroupedData = [];
+    let schoolMarkers = [];
+    let currentHighlightedPolygon = null;
+
+    // Función para normalizar nombres entre el CSV nuevo y el GeoJSON de polígonos
+    function normalizarClaveEess(nombre) {
+      const limpio = (nombre || "").trim().toUpperCase();
+      if (limpio === "C.S. MENTAL MIRONES BAJOS") return "C.S.M.C MENTAL MIRONES BAJOS";
+      if (limpio === "C.S. MENTAL SAN MARCOS") return "C.S.M.C MENTAL SAN MARCOS";
+      return limpio;
+    }
+
+    // DEFINICIÓN DE COLORES (Sincronizado con los 16 centros de la lista)
+    const coloresPoligonos = {
+      "C.S. MIRONES BAJO": "#BAFFC9",
+      "P.S. PALERMO": "#BAC4FF",
+      "C.S. UNIDAD VECINAL N° 3": "#E8BAFF",
+      "P.S. SANTA ROSA": "#E6E6FA",
+      "C.S. VILLA MARIA PERPETUO SOCORRO": "#FFC4E1",
+      "P.S. RESCATE": "#FFDAB9",
+      "C.S. MIRONES": "#FFFFBA",
+      "C.S. CONDE DE LA VEGA BAJA": "#FFB3BA",
+      "C.S. SAN SEBASTIAN": "#BAE1FF",
+      "C.S. JUAN PEREZ CARRANZA": "#FFDFBA",
+      "P.S. JARDIN ROSA DE SANTA MARIA": "#D4FFBA",
+      "C.S.M.C MENTAL MIRONES BAJOS": "#B3E5FC",
+      "C.S.M.C MENTAL SAN MARCOS": "#C8E6C9",
+      "C.S. PATRUCO": "#FFE0B2",
+      "C.E. ANTIRABICO ZOONOSIS": "#D1C4E9",
+      "COMEDOR CENTRO DE ALIMENTACION Y NUTRICION N°1": "#FFF59D"
+    };
+
+    // DEFINICIÓN DE NÚMEROS (Del 1 al 16)
+    const eessNumeros = {
+      "C.S. MIRONES BAJO": 1,
+      "P.S. PALERMO": 2,
+      "C.S. UNIDAD VECINAL N° 3": 3,
+      "P.S. SANTA ROSA": 4,
+      "C.S. VILLA MARIA PERPETUO SOCORRO": 5,
+      "P.S. RESCATE": 6,
+      "C.S. MIRONES": 7,
+      "C.S. CONDE DE LA VEGA BAJA": 8,
+      "C.S. SAN SEBASTIAN": 9,
+      "C.S. JUAN PEREZ CARRANZA": 10,
+      "P.S. JARDIN ROSA DE SANTA MARIA": 11,
+      "C.S.M.C MENTAL MIRONES BAJOS": 12,
+      "C.S.M.C MENTAL SAN MARCOS": 13,
+      "C.S. PATRUCO": 14,
+      "C.E. ANTIRABICO ZOONOSIS": 15,
+      "COMEDOR CENTRO DE ALIMENTACION Y NUTRICION N°1": 16
+    };
+
+    // NOMBRES PERSONALIZADOS PARA MOSTRAR EN LA LEYENDA Y FILTROS
+    const nombresLeyenda = {
+      "C.S.M.C MENTAL MIRONES BAJOS": "C.S.M.C Mirones Bajos",
+      "C.S.M.C MENTAL SAN MARCOS": "C.S.M.C San Marcos"
+    };
+
+    // ==========================================
+    // 4. CAPAS DE CLUSTERS Y HOSPITALES MANUALES
+    // ==========================================
+    function createClusterLayer(clusterClassName) {
+      return L.markerClusterGroup({
+        showCoverageOnHover: false, spiderfyOnMaxZoom: true, disableClusteringAtZoom: 17, maxClusterRadius: 45,
+        iconCreateFunction: function(cluster) {
+          return L.divIcon({
+            html: `<div><span>${cluster.getChildCount()}</span></div>`,
+            className: `marker-cluster ${clusterClassName}`, iconSize: L.point(40, 40)
+          });
+        }
+      });
+    }
+
+    var colegiosLayer = createClusterLayer('cluster-colegios');
+    var iglesiasLayer = createClusterLayer('cluster-iglesias');
+    var mercadosLayer = createClusterLayer('cluster-mercados');
+    var hospitalesLayer = L.layerGroup(); 
+
+    map.removeLayer(colegiosLayer);
+    map.removeLayer(iglesiasLayer);
+    map.removeLayer(mercadosLayer);
+    hospitalesLayer.addTo(map);
+
+    document.getElementById('show-colegios').addEventListener('change', function() {
+      if (this.checked) map.addLayer(colegiosLayer); else map.removeLayer(colegiosLayer);
+    });
+    document.getElementById('show-iglesias').addEventListener('change', function() {
+      if (this.checked) map.addLayer(iglesiasLayer); else map.removeLayer(iglesiasLayer);
+    });
+    document.getElementById('show-mercados').addEventListener('change', function() {
+      if (this.checked) map.addLayer(mercadosLayer); else map.removeLayer(mercadosLayer);
+    });
+    document.getElementById('show-hospitales').addEventListener('change', function() {
+      if (this.checked) map.addLayer(hospitalesLayer); else map.removeLayer(hospitalesLayer);
+    });
+
+    // MARCADORES MANUALES DE HOSPITALES
+    const hospitalesData = [
+      { name: "Instituto Nacional de Ciencias Neurológicas", lat: -12.04610212959167, lon: -77.01607161787005 },
+      { name: "Instituto Nacional Materno Perinatal", lat: -12.05228067526418, lon: -77.02206919114937 },
+      { name: "Hospital Nacional 2 de Mayo", lat: -12.056569001304512, lon: -77.01604887277527 },
+      { name: "Hospital Nacional Arzobispo Loayza", lat: -12.049579411632719, lon: -77.04265725748083 }
+    ];
+
+    hospitalesData.forEach(hosp => {
+      L.marker([hosp.lat, hosp.lon], { icon: hospitalIcon })
+       .bindPopup(`<b>${hosp.name}</b><br><a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${hosp.lat},${hosp.lon}" target="_blank">Cómo llegar</a>`)
+       .addTo(hospitalesLayer);
+    });
+
+    // ==========================================
+    // 5. ICONOS DINÁMICOS Y LEYENDA HORIZONTAL
+    // ==========================================
+ function obtenerIconoBase(nombreEess) {
+      const clave = normalizarClaveEess(nombreEess);
+      if (clave === "C.S.M.C MENTAL MIRONES BAJOS" || clave === "C.S.M.C MENTAL SAN MARCOS") {
+        return `<img src="iconos/mentales.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
+      } else if (clave === "C.E. ANTIRABICO ZOONOSIS") {
+        return `<img src="iconos/huellas10.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
+      } else if (clave === "C.S. PATRUCO") {
+        return `<img src="iconos/hiv.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
+      } else if (clave === "COMEDOR CENTRO DE ALIMENTACION Y NUTRICION N°1") {
+        // NUEVA LÍNEA PARA EL COMEDOR
+        return `<img src="iconos/comedor_popular.jpg" style="width: 40px; height: 45px; border-radius: 50%; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
+      }
+      return `<img src="iconos/centros.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
+    }
+
+
+    // FUNCIÓN DE LEYENDA HORIZONTAL CON SECCIÓN "COMEDORES"
+    function actualizarLeyenda() {
+      const contenedorLeyenda = document.getElementById('leyenda-contenido');
+      if (!contenedorLeyenda) return;
+
+      // Agrupación de centros en 4 categorías
+      const mentales = ["C.S.M.C MENTAL MIRONES BAJOS", "C.S.M.C MENTAL SAN MARCOS"];
+      const especializados = ["C.S. PATRUCO", "C.E. ANTIRABICO ZOONOSIS"];
+      const comedores = ["COMEDOR CENTRO DE ALIMENTACION Y NUTRICION N°1"];
+      const centrosSalud = Object.keys(coloresPoligonos).filter(
+        k => !mentales.includes(k) && !especializados.includes(k) && !comedores.includes(k)
+      );
+
+      // Ordenar por números (1 al 16)
+      centrosSalud.sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999));
+      mentales.sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999));
+      especializados.sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999));
+      comedores.sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999));
+
+      function buildGroup(title, keys, flexProportion, minColWidth) {
+        if (keys.length === 0) return '';
+        
+        let html = `<div style="flex: ${flexProportion}; min-width: 200px;">
+                      <h5 style="margin: 0 0 8px 0; font-size: 11px; color: #1e293b; font-weight: bold; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; text-transform: uppercase;">${title}</h5>
+                      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(${minColWidth}, 1fr)); gap: 6px 12px;">`;
+        
+        for (let i = 0; i < keys.length; i++) {
+          let key = keys[i];
+          let nombreMostrar = nombresLeyenda[key] || key;
+          let num = eessNumeros[key] || "";
+          let color = coloresPoligonos[key];
+          
+          let rutaIcono = 'iconos/centros.png';
+          if (mentales.includes(key)) { rutaIcono = 'iconos/mentales.png'; } 
+          else if (key === "C.E. ANTIRABICO ZOONOSIS") { rutaIcono = 'iconos/rabia.png'; } 
+          else if (key === "C.S. PATRUCO") { rutaIcono = 'iconos/hiv.png'; }
+          else if (comedores.includes(key)) { rutaIcono = 'iconos/comedor_popular.jpg'; } // NUEVA LÍNEA
+  
+          
+
+          // Se permite que el texto largo baje a la siguiente línea (white-space: normal)
+          html += `
+            <div style="display: flex; align-items: flex-start; justify-content: flex-start; padding: 2px 0;">
+              <img src="${rutaIcono}" style="width: 16px; height: 16px; margin-right: 4px; flex-shrink: 0; margin-top: 1px;">
+              <span style="background: ${color}; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; margin-right: 6px; border: 1px solid #475569; border-radius: 50%; font-size: 9px; font-weight: bold; color: #000; flex-shrink: 0; margin-top: 1px;">${num}</span> 
+              <span style="font-size: 10.5px; color: #0f172a; line-height: 1.25; font-weight: 500; white-space: normal; word-break: break-word;" title="${nombreMostrar}">${nombreMostrar}</span>
+            </div>`;
+        }
+        html += `</div></div>`;
+        return html;
+      }
+
+      contenedorLeyenda.innerHTML = 
+        buildGroup("Centros y Puestos de Salud", centrosSalud, "3.2", "200px") + 
+        buildGroup("CSMC", mentales, "1", "180px") + 
+        buildGroup("Especializados", especializados, "1", "180px") +
+        buildGroup("Comedores", comedores, "1.1", "190px");
+    }
+
+    // ==========================================
+    // 6. CARGAR MARCADORES DE EESS (CSV)
+    // ==========================================
+    Papa.parse("data_eess.csv", {
+      download: true, header: true, delimiter: ";",
+      complete: function(results) {
+        const data = results.data;
+        data.forEach(row => {
+          if (row.COORDENADAS && row.RIS && row.EESS) {
+            const [lat, lon] = row.COORDENADAS.split(",").map(coord => parseFloat(coord.trim()));
+
+            if (!isNaN(lat) && !isNaN(lon)) {
+              const eess = normalizarClaveEess(row.EESS);
+              const nombrePopup = nombresLeyenda[eess] || eess;
+              const num = eessNumeros[eess] || "";
+              const colorFondo = coloresPoligonos[eess] || "#007e9d";
+              const iconoDinamico = obtenerIconoBase(eess);
+
+              const combinedIcon = L.divIcon({
+                className: 'combined-marker',
+                html: `<div style="display: flex; align-items: center; width: max-content;">
+                          ${iconoDinamico}
+                          <div style="background-color: ${colorFondo}; color: #1f2937; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.4); font-size: 13px; margin-left: -8px; z-index: 10;">${num}</div>
+                        </div>`,
+                iconSize: [60, 40], iconAnchor: [20, 40], popupAnchor: [0, -40]
+              });
+
+              const marker = L.marker([lat, lon], { icon: combinedIcon })
+                .bindPopup(`<b>${nombrePopup}</b><br>Dirección: ${row.DIRECCION}<br>${row.DISTRITO}<br><a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${lat},${lon}" target="_blank">Cómo llegar</a>`)
+                .addTo(map); 
+
+              const ris = row.RIS.trim();
+              eessMarkers[eess] = { marker, lat, lon };
+              if (!risEessMap[ris]) { risEessMap[ris] = []; }
+              if (!risEessMap[ris].includes(eess)) {
+                risEessMap[ris].push(eess);
+              }
+            }
+          }
+        });
+
+        Object.keys(risEessMap).sort().forEach(ris => {
+          if (![...risSelect.options].some(opt => opt.value === ris)) {
+            const option = document.createElement("option");
+            option.value = ris; option.textContent = ris;
+            risSelect.appendChild(option);
+          }
+        });
+
+        // Activa la leyenda externa agrupada
+        actualizarLeyenda();
+      }
+    });
+
+    // ==========================================
+    // 7. EVENTOS DE SELECCIÓN Y POLÍGONOS
+    // ==========================================
+    risSelect.addEventListener("change", function() {
+      const ris = this.value;
+      eessSelect.innerHTML = `<option value="">Seleccione EESS</option>`; eessSelect.disabled = !ris;
+      distritoSelect.value = ""; resetDistritoHighlight(); resetHighlightedPolygon(); 
+      if (ris && risEessMap[ris]) {
+        risEessMap[ris].sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999)).forEach(eess => {
+          const option = document.createElement("option"); 
+          option.value = eess; 
+          option.textContent = nombresLeyenda[eess] || eess; 
+          eessSelect.appendChild(option);
+        });
+      }
+    });
+
+    eessSelect.addEventListener("change", function() {
+      const eess = normalizarClaveEess(this.value);
+      distritoSelect.value = ""; resetDistritoHighlight(); resetHighlightedPolygon();
+      if (eess) {
+        const data = eessMarkers[eess];
+        if (data) { map.setView([data.lat, data.lon], 16); data.marker.openPopup(); }
+        if (eessPolygons[eess]) highlightPolygon(eessPolygons[eess]);
+      }
+    });
     
-    <div id="leyenda-externa" style="margin-top: 15px; padding: 15px; background: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); max-height: 25vh; overflow-y: auto;">
-      <h4 style="margin: 0 0 10px 0; color: #0f172a; font-size: 15px; font-weight: bold;">Leyenda de Establecimientos de Salud</h4>
-      <div id="leyenda-contenido" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
-    </div>
-  </section>
-</main>
+    function highlightPolygon(layer) {
+      currentHighlightedPolygon = layer;
+      layer.setStyle({ weight: 4, color: "yellow", fillColor: "yellow", fillOpacity: 0.4 });
+    }
+    
+    function resetDistritoHighlight() {
+      if (typeof distritosGeoLayer !== 'undefined') distritosGeoLayer.eachLayer(layer => layer.setStyle({ color: "#555555", weight: 1.5, fillOpacity: 0, fillColor: "#cccccc" }));
+    }
 
-<footer class="footer-bar">
-  Desarrollado por <strong>RIS 1 - DIRIS Lima Centro</strong>
-</footer>
+    function resetHighlightedPolygon() {
+      if (currentHighlightedPolygon) {
+        const eessKey = normalizarClaveEess(currentHighlightedPolygon.feature.properties.EESS);
+        const colorOriginal = coloresPoligonos[eessKey] || "#0096ba";
+        currentHighlightedPolygon.setStyle({ weight: 1.5, color: "#000000", fillColor: colorOriginal, fillOpacity: 0.45 });
+        currentHighlightedPolygon = null;
+      }
+    }
+
+    function clearAllFilters() {
+      risSelect.value = ""; eessSelect.innerHTML = `<option value="">Seleccione EESS</option>`; eessSelect.disabled = true;
+      distritoSelect.value = ""; schoolSearchInput.value = ""; schoolSearchResults.innerHTML = ""; schoolSearchResults.classList.remove("active");
+      document.getElementById("show-colegios").checked = false; document.getElementById("show-iglesias").checked = false; document.getElementById("show-mercados").checked = false; 
+      
+      map.removeLayer(colegiosLayer); map.removeLayer(iglesiasLayer); map.removeLayer(mercadosLayer);
+      
+      resetDistritoHighlight(); resetHighlightedPolygon(); map.closePopup(); map.setView([-12.0464, -77.0428], 13);
+    }
+    clearFiltersBtn.addEventListener("click", clearAllFilters);
+
+    // CARGAR GEOJSON DE EESS
+    fetch("DIRISLC_CENTROS_5.geojson")
+      .then(response => response.json())
+      .then(geoData => {
+        L.geoJSON(geoData, {
+          style: feature => {
+            const eessKey = normalizarClaveEess(feature.properties.EESS);
+            const colorAsignado = coloresPoligonos[eessKey] || "#0096ba";
+            
+            return { color: "#000000", fillColor: colorAsignado, weight: 1.5, fillOpacity: 0.45 };
+          },
+          onEachFeature: (feature, layer) => {
+            if (feature.properties) {
+              const eessKey = normalizarClaveEess(feature.properties.EESS);
+              const colorAsignado = coloresPoligonos[eessKey] || "#0096ba";
+              const nombreMostrar = nombresLeyenda[eessKey] || eessKey;
+              
+              if (eessKey) eessPolygons[eessKey] = layer;
+
+              let routeLink = '';
+              if (eessMarkers[eessKey]) {
+                const { lat, lon } = eessMarkers[eessKey];
+                routeLink = `<br><a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${lat},${lon}" target="_blank">Cómo llegar</a>`;
+              }              
+              const content = `<b>EESS:</b> ${nombreMostrar}<br><b>RIS:</b> ${feature.properties.RIS}<br><b>Distrito:</b> ${feature.properties.DISTRITO}<br><b>Ruta:</b> ${routeLink}`;
+              
+              layer.bindTooltip(content, { permanent: false, direction: "auto", opacity: 0.9 });
+              
+              layer.on("mouseover", function() { 
+                if (layer !== currentHighlightedPolygon) layer.setStyle({ weight: 4, color: "#333333", fillOpacity: 0.7 }); 
+              });
+              
+              layer.on("mouseout", function() { 
+                if (layer !== currentHighlightedPolygon) {
+                  const currentColor = coloresPoligonos[eessKey] || "#0096ba";
+                  layer.setStyle({ weight: 1.5, color: "#000000", fillColor: currentColor, fillOpacity: 0.45 }); 
+                }
+              });
+              
+              layer.on("click", function() {
+                if (eessKey) {
+                  let risFound = "";
+                  for (const [ris, eessList] of Object.entries(risEessMap)) {
+                    if (eessList.includes(eessKey)) { risFound = ris; break; }
+                  }
+                  if (risFound) {
+                    risSelect.value = risFound; risSelect.dispatchEvent(new Event('change'));
+                    setTimeout(() => { eessSelect.value = eessKey; eessSelect.dispatchEvent(new Event('change')); }, 100);
+                  }
+                }
+              });
+            }
+          }
+        }).addTo(map);
+      })
+      .catch(error => console.error("Error cargando GeoJSON:", error));
+
+    // CARGAR COLEGIOS
+    Papa.parse("data_cole.csv", {
+      download: true, header: true, delimiter: ";",
+      complete: function(results) {
+        const schoolsByCoord = {};
+        results.data.forEach(row => {
+          if (row.COORDENADAS) {
+            const coordKey = row.COORDENADAS.trim();
+            if (!schoolsByCoord[coordKey]) schoolsByCoord[coordKey] = [];
+            schoolsByCoord[coordKey].push(row);
+          }
+        });
+        Object.entries(schoolsByCoord).forEach(([coordKey, schools]) => {
+          const [lat, lon] = coordKey.split(",").map(coord => parseFloat(coord.trim()));
+          if (!isNaN(lat) && !isNaN(lon)) {
+            let popupContent = '';
+            schools.forEach((school, index) => {
+              if (index > 0) popupContent += '<hr>';
+              const linkRuta = `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${lat},${lon}`;
+              popupContent += `<b>${school.CENTRO_EDUCATIVO}</b><br>Código Modular: <span style="color:blue; font-weight:bold;">${school.C_MODULAR}</span><br>Distrito: ${(school.DISTRITO || '').trim()}<br>Nivel: ${school.NIVEL}<br>Tipo: ${school.TIPO}<br>Dirección: ${school.DIRECCION}<br>Total alumnos: ${school.TOTAL}<br>Ruta: <a href="${linkRuta}" target="_blank">Cómo llegar</a>`;
+            });
+            const marker = L.marker([lat, lon], { icon: smallIcon }).addTo(colegiosLayer).bindPopup(popupContent);
+            schoolMarkers.push(marker);
+            const uniqueNames = [...new Set(schools.map(s => (s.CENTRO_EDUCATIVO || '').trim()).filter(Boolean))];
+            const uniqueNiveles = [...new Set(schools.map(s => (s.NIVEL || '').trim()).filter(Boolean))];
+            const distritoPrincipal = (schools[0].DISTRITO || '').trim();
+            const displayName = uniqueNames[0] || 'Institución educativa';
+            const groupedItem = { nombre: displayName, distrito: distritoPrincipal, lat, lon, marker, popupHtml: popupContent, searchTerms: uniqueNames.join(' | '), nombresAsociados: uniqueNames, niveles: uniqueNiveles };
+            schoolGroupedData.push(groupedItem); schoolIndex.push(groupedItem);
+          }
+        });
+      }
+    });
+    
+    function normalizeText(text) { return (text || "").toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim(); }
+    function renderSchoolResults(items) {
+      schoolSearchResults.innerHTML = "";
+      if (!items.length) { schoolSearchResults.classList.remove("active"); return; }
+      items.forEach(item => {
+        const div = document.createElement("div"); div.className = "school-result-item";
+        div.innerHTML = `<div class="school-result-name">${item.nombre}</div><div class="school-result-district">${item.distrito || "Sin distrito"} · ${item.niveles.length} nivel(es)</div>`;
+        div.addEventListener("click", function() {
+          schoolSearchInput.value = `${item.nombre} - ${item.distrito || "Sin distrito"}`;
+          schoolSearchResults.classList.remove("active");
+          selectSchoolResult(item);
+        });
+        schoolSearchResults.appendChild(div);
+      });
+      schoolSearchResults.classList.add("active");
+    }
+    function selectSchoolResult(item) {
+      risSelect.value = ""; eessSelect.innerHTML = `<option value="">Seleccione EESS</option>`; eessSelect.disabled = true; distritoSelect.value = "";
+      resetDistritoHighlight(); resetHighlightedPolygon(); map.setView([item.lat, item.lon], 17); L.popup().setLatLng([item.lat, item.lon]).setContent(item.popupHtml).openOn(map);
+    }
+    schoolSearchInput.addEventListener("input", function() {
+      const term = normalizeText(this.value);
+      if (term.length < 2) { schoolSearchResults.innerHTML = ""; schoolSearchResults.classList.remove("active"); return; }
+      const matches = schoolIndex.filter(item => {
+          const nombre = normalizeText(item.nombre); const distrito = normalizeText(item.distrito); const asociados = normalizeText(item.searchTerms);
+          return nombre.includes(term) || distrito.includes(term) || asociados.includes(term);
+        }).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')).slice(0, 12);
+      renderSchoolResults(matches);
+    });
+    document.addEventListener("click", function(e) { if (!schoolSearchInput.contains(e.target) && !schoolSearchResults.contains(e.target)) schoolSearchResults.classList.remove("active"); });   
+    
+    // CARGAR GEOJSON DE DISTRITOS
+    var distritosGeoLayer;
+    fetch("DIRISLC_DISTRITOS.geojson")
+      .then(response => response.json())
+      .then(geoData => {
+        distritosGeoLayer = L.geoJSON(geoData, {
+          style: { color: "#555555", weight: 1.5, fillOpacity: 0, fillColor: "#cccccc" },
+          onEachFeature: (feature, layer) => { const distName = feature.properties.DISTRITO; if (distName) distritoPolygons[distName] = layer; }
+        }).addTo(map);
+        Object.keys(distritoPolygons).sort().forEach(dist => {
+          if (![...distritoSelect.options].some(opt => opt.value === dist)) {
+            const option = document.createElement("option"); option.value = dist; option.textContent = dist; distritoSelect.appendChild(option);
+          }
+        });
+        distritoSelect.addEventListener("change", function() {
+          const distSeleccionado = this.value; risSelect.value = ""; eessSelect.innerHTML = `<option value="">Seleccione EESS</option>`; eessSelect.disabled = true; resetHighlightedPolygon();
+          distritosGeoLayer.eachLayer(layer => layer.setStyle({ color: "#555555", weight: 1.5, fillOpacity: 0, fillColor: "#cccccc" }));
+          if (distSeleccionado && distritoPolygons[distSeleccionado]) {
+            distritoPolygons[distSeleccionado].setStyle({ color: "#e63946", weight: 3, fillOpacity: 0.25, fillColor: "#e63946" });
+            map.fitBounds(distritoPolygons[distSeleccionado].getBounds(), { padding: [20, 20] });
+          }
+        });
+      }).catch(error => console.error("Error cargando GeoJSON de distritos:", error));
+
+    // CARGAR IGLESIAS
+    Papa.parse("iglesias2.csv", {
+      download: true, header: true, delimiter: ";",
+      complete: function(results) {
+        results.data.forEach(row => {
+          if (row.coordenadas) {
+            const [lat, lon] = row.coordenadas.split(",").map(coord => parseFloat(coord.trim()));
+            if (!isNaN(lat) && !isNaN(lon)) {
+              let popupContent = `<b>${row.name}</b>`; if (row.address && row.address.trim() !== "") popupContent += `<br>Dirección: ${row.address}`;
+              popupContent += `<br><a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${lat},${lon}" target="_blank">Cómo llegar</a>`;
+              L.marker([lat, lon], { icon: smallIcon3 }).addTo(iglesiasLayer).bindPopup(popupContent);
+            }
+          }
+        });
+      }
+    });
+
+    // CARGAR MERCADOS
+    Papa.parse("mercados.csv", {
+      download: true, header: true, delimiter: ";",
+      complete: function(results) {
+        results.data.forEach(row => {
+          if (row.coordenadas) {
+            const [lat, lon] = row.coordenadas.split(",").map(coord => parseFloat(coord.trim()));
+            if (!isNaN(lat) && !isNaN(lon)) {
+              let popupContent = `<b>${row.name}</b>`; if (row.address && row.address.trim() !== "") popupContent += `<br>Dirección: ${row.address}`;
+              popupContent += `<br><a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${lat},${lon}" target="_blank">Cómo llegar</a>`;
+              L.marker([lat, lon], { icon: smallIcon4 }).addTo(mercadosLayer).bindPopup(popupContent);
+            }
+          }
+        });
+      }
+    });  
+
+    // ==========================================
+    // 8. TOOLTIPS, BOTONES UI Y PALETA DE COLORES
+    // ==========================================
+    const infoBtn = document.getElementById("info-escalE");
+    const infoTooltip = document.getElementById("tooltip-escalE");
+    if (infoBtn && infoTooltip) {
+      infoBtn.addEventListener("click", function(e) { e.stopPropagation(); infoTooltip.classList.toggle("active"); });
+      document.addEventListener("click", function() { infoTooltip.classList.remove("active"); });    
+    }
+
+    const toggleSidebarBtn = document.getElementById('toggle-sidebar');
+    const sidebar = document.querySelector('.sidebar');
+    if (toggleSidebarBtn && sidebar) {
+      toggleSidebarBtn.addEventListener('click', () => {
+        if (sidebar.style.display === 'none') { sidebar.style.display = 'block'; toggleSidebarBtn.textContent = 'Ocultar Filtros'; } 
+        else { sidebar.style.display = 'none'; toggleSidebarBtn.textContent = 'Mostrar Filtros'; }
+        setTimeout(() => { map.invalidateSize(); }, 200);
+      });
+    }
+
+    const colorContainer = document.getElementById('color-palette-container');
+    const toggleColorsBtn = document.getElementById('toggle-colors');
+
+    if (toggleColorsBtn && colorContainer) {
+      toggleColorsBtn.addEventListener('click', () => {
+        if (colorContainer.style.display === 'none') { colorContainer.style.display = 'block'; toggleColorsBtn.textContent = 'Ocultar Paleta'; } 
+        else { colorContainer.style.display = 'none'; toggleColorsBtn.textContent = 'Mostrar Paleta de Centros'; }
+      });
+
+      // Ordenar la paleta del 1 al 16 igual que en la leyenda
+      const clavesOrdenadas = Object.keys(coloresPoligonos).sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999));
+
+      clavesOrdenadas.forEach(eess => {
+        const rowDiv = document.createElement('div');
+        rowDiv.style.display = 'flex'; rowDiv.style.alignItems = 'center'; rowDiv.style.justifyContent = 'space-between'; rowDiv.style.marginBottom = '8px'; rowDiv.style.fontSize = '11px'; rowDiv.style.fontWeight = '600'; rowDiv.style.color = '#334155'; rowDiv.style.gap = '6px';
+        
+        const displayTitle = nombresLeyenda[eess] || eess;
+        const shortName = displayTitle
+          .replace("C.S. ", "")
+          .replace("P.S. ", "")
+          .replace("C.ESPECIALIZADO ", "")
+          .replace("C.E. ", "");
+
+        const label = document.createElement('span');
+        label.textContent = `${eessNumeros[eess]}. ${shortName}`;
+        label.title = displayTitle;
+        label.style.lineHeight = '1.2';
+        label.style.wordBreak = 'break-word';
+
+        const colorPicker = document.createElement('input');
+        colorPicker.type = 'color'; colorPicker.value = coloresPoligonos[eess];
+        colorPicker.style.border = 'none'; colorPicker.style.width = '26px'; colorPicker.style.height = '26px'; colorPicker.style.cursor = 'pointer'; colorPicker.style.padding = '0'; colorPicker.style.background = 'transparent'; colorPicker.style.flexShrink = '0';
+
+        colorPicker.addEventListener('input', (e) => {
+          const newColor = e.target.value;
+          coloresPoligonos[eess] = newColor;
+
+          if (eessPolygons[eess] && currentHighlightedPolygon !== eessPolygons[eess]) {
+            eessPolygons[eess].setStyle({ fillColor: newColor });
+          }
+
+          if (eessMarkers[eess]) {
+            const num = eessNumeros[eess];
+            const iconoBaseStr = obtenerIconoBase(eess); 
+            
+            const updatedIcon = L.divIcon({
+              className: 'combined-marker',
+              html: `<div style="display: flex; align-items: center; width: max-content;">
+                       ${iconoBaseStr}
+                       <div style="background-color: ${newColor}; color: #1f2937; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.4); font-size: 13px; margin-left: -8px; z-index: 10;">${num}</div>
+                     </div>`,
+              iconSize: [60, 40], iconAnchor: [20, 40], popupAnchor: [0, -40]
+            });
+            eessMarkers[eess].marker.setIcon(updatedIcon);
+          }
+          actualizarLeyenda(); 
+        });
+
+        rowDiv.appendChild(label); rowDiv.appendChild(colorPicker); colorContainer.appendChild(rowDiv);
+      });
+    }
+
+    const btnPrint = document.getElementById('btn-print');
+    if (btnPrint) {
+      btnPrint.addEventListener('click', function() {
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarDisplay = sidebar.style.display;
+        sidebar.style.display = 'none';
+        map.invalidateSize();
+        
+        setTimeout(function() {
+          window.print();
+          sidebar.style.display = sidebarDisplay;
+          setTimeout(() => map.invalidateSize(), 200);
+        }, 500);
+      });
+    }
+
+    // ==========================================
+    // BOTÓN PARA OCULTAR/MOSTRAR LEYENDA EXTERNA
+    // ==========================================
+    const btnToggleLeyenda = document.getElementById('btn-toggle-leyenda');
+    const leyendaContenido = document.getElementById('leyenda-contenido');
+
+    if (btnToggleLeyenda && leyendaContenido) {
+      btnToggleLeyenda.addEventListener('click', function() {
+        if (leyendaContenido.style.display === 'none') {
+          leyendaContenido.style.display = 'flex';
+          btnToggleLeyenda.textContent = 'Ocultar';
+          btnToggleLeyenda.style.color = '#555';
+        } else {
+          leyendaContenido.style.display = 'none';
+          btnToggleLeyenda.textContent = 'Mostrar Leyenda';
+          btnToggleLeyenda.style.color = '#0ea5e9';
+        }
+      });
+    }
+
+    // ==========================================
+    // CAPTURA DE PANTALLA ULTRA HD
+    // ==========================================
+    const btnCapturaHD = document.getElementById('btn-captura-hd');
+    
+    if (btnCapturaHD) {
+      btnCapturaHD.addEventListener('click', function () {
+        const mapElement = document.getElementById('map');
+        const btn = this;
+        
+        btn.textContent = 'Generando captura (Espere)...';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+
+        htmlToImage.toPng(mapElement, {
+          quality: 1.0,
+          pixelRatio: 2,
+          filter: function (node) {
+            return !node.classList || !node.classList.contains('leaflet-control-zoom');
+          }
+        })
+        .then(function (dataUrl) {
+          const link = document.createElement('a');
+          link.download = 'mapa_jurisdiccion_ris1.png';
+          link.href = dataUrl;
+          link.click();
+
+          btn.textContent = 'Descargar Mapa (Ultra HD)';
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        })
+        .catch(function (error) {
+          console.error('Error al generar la captura:', error);
+          alert('Ocurrió un error al capturar el mapa. Asegúrate de que el servidor permita exportar las imágenes (CORS).');
+          btn.textContent = 'Descargar Mapa (Ultra HD)';
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        });
+      });
+    }
+  </script>
+</body>
+</html>

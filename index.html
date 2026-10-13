@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -32,7 +33,7 @@
         box-shadow: none !important;
       }
       #map {
-        height: 85vh !important;
+        height: 75vh !important;
         border: 2px solid #000;
       }
       .combined-marker {
@@ -109,10 +110,11 @@
             <option value="P.S. PALERMO">P.S. PALERMO</option>
             <option value="P.S. RESCATE">P.S. RESCATE</option>
             <option value="P.S. SANTA ROSA">P.S. SANTA ROSA</option>
-            <option value="C.S. MENTAL MIRONES BAJOS">C.S. MENTAL MIRONES BAJOS</option>
-            <option value="C.S. MENTAL SAN MARCOS">C.S. MENTAL SAN MARCOS</option>
+            <option value="C.S.M.C MENTAL MIRONES BAJOS">C.S.M.C Mirones Bajos</option>
+            <option value="C.S.M.C MENTAL SAN MARCOS">C.S.M.C San Marcos</option>
             <option value="C.S. PATRUCO">C.S. PATRUCO</option>
-            <option value="C.E. ANTIRABICO ZOONOSIS">C.ESPECIALIZADO ZOONOSIS</option>
+            <option value="C.E. ANTIRABICO ZOONOSIS">C.E. ANTIRABICO ZOONOSIS</option>
+            <option value="COMEDOR CENTRO DE ALIMENTACION Y NUTRICION N°1">COMEDOR CENTRO DE ALIMENTACION Y NUTRICION N°1</option>
           </select>
         </div>
 
@@ -136,15 +138,15 @@
           <span class="sidebar-section-title">Capas temáticas</span>
           <div class="layer-controls">
             <label class="layer-option">
-              <input type="checkbox" id="show-colegios" >
+              <input type="checkbox" id="show-colegios">
               <span>Mostrar colegios</span>
             </label>
             <label class="layer-option">
-              <input type="checkbox" id="show-iglesias" >
+              <input type="checkbox" id="show-iglesias">
               <span>Mostrar iglesias</span>
             </label>
             <label class="layer-option">
-              <input type="checkbox" id="show-mercados" >
+              <input type="checkbox" id="show-mercados">
               <span>Mostrar mercados</span>
             </label>
             <label class="layer-option">
@@ -157,33 +159,34 @@
         <div class="sidebar-section">
           <div class="action-buttons">
             <button type="button" id="clear-filters" class="btn-secondary">Limpiar filtros</button>
-         
-         <!-- NUEVO BOTÓN PARA CAPTURA -->
-        <button type="button" id="btn-captura-hd" class="btn-secondary" style="background: #0284c7; color: white; margin-top: 10px; border: none;">
-          Descargar Mapa (Ultra HD)
-        </button>
+           
+            <!-- BOTÓN PARA CAPTURA -->
+            <button type="button" id="btn-captura-hd" class="btn-secondary" style="background: #0284c7; color: white; margin-top: 10px; border: none;">
+              Descargar Mapa (Ultra HD)
+            </button>
           </div>
         </div>
       </aside>
 
-<!-- SECCIÓN DEL MAPA -->
-<section class="map-panel" style="display: flex; flex-direction: column; width: 100%; min-height: 95vh; padding: 10px;">
-    
-    <!-- Mapa redimensionado (Mucho más alto y ancho) -->
-    <div id="map" style="flex: 1; border-radius: 10px; width: 100%; min-height: 85vh; border: 1px solid #cbd5e1; z-index: 1;"></div>
-    
-    <!-- Leyenda externa ajustada a la izquierda y con diseño compacto -->
-    <div id="leyenda-externa" style="margin-top: 15px; padding: 10px 15px; background: #ffffff; border: 1px solid #333; width: fit-content; min-width: 280px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <h4 style="margin: 0; color: #0033a0; font-size: 14px; font-weight: bold; text-transform: uppercase;">Leyenda</h4>
-        <button id="btn-toggle-leyenda" style="background: transparent; border: none; padding: 0; cursor: pointer; font-size: 11px; font-weight: bold; color: #555; text-decoration: underline;">
-          Ocultar
-        </button>
-      </div>
-      <div id="leyenda-contenido" style="display: flex; flex-direction: column; gap: 10px; max-height: 35vh; overflow-y: auto; padding-right: 10px;"></div>
-    </div>
-    
-  </section>
+      <!-- SECCIÓN DEL MAPA -->
+      <section class="map-panel" style="display: flex; flex-direction: column; width: 100%; min-height: 95vh; padding: 10px; box-sizing: border-box;">
+          
+        <!-- Mapa redimensionado -->
+        <div id="map" style="flex: 1; border-radius: 10px; width: 100%; min-height: 78vh; border: 1px solid #cbd5e1; z-index: 1;"></div>
+          
+        <!-- Leyenda externa horizontal cubriendo todo el ancho -->
+        <div id="leyenda-externa" style="margin-top: 12px; padding: 12px 16px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; width: 100%; box-sizing: border-box; box-shadow: 0 2px 5px rgba(0,0,0,0.08);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 6px;">
+            <h4 style="margin: 0; color: #0033a0; font-size: 14px; font-weight: bold; text-transform: uppercase;">Leyenda de Establecimientos (RIS 1)</h4>
+            <button id="btn-toggle-leyenda" style="background: transparent; border: none; padding: 0; cursor: pointer; font-size: 12px; font-weight: bold; color: #555; text-decoration: underline;">
+              Ocultar
+            </button>
+          </div>
+          <!-- Contenedor flex en fila (horizontal) -->
+          <div id="leyenda-contenido" style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 20px; width: 100%; align-items: flex-start; justify-content: space-between;"></div>
+        </div>
+          
+      </section>
 
     </main>
 
@@ -192,21 +195,19 @@
     </footer>
   </div>
   
-<script>
+  <script>
     // ==========================================
-    // 1. INICIALIZAR EL MAPA Y CAPA BASE (Textos Oscuros)
+    // 1. INICIALIZAR EL MAPA Y CAPA BASE
     // ==========================================
-// INICIALIZAR EL MAPA CON ZOOM INTERMEDIO
     var map = L.map("map", {
-      zoomSnap: 0.5,   // Permite detenerse en niveles intermedios (ej. 13.5, 14.0, 14.5)
-      zoomDelta: 0.5   // Define que cada clic del scroll avance de 0.5 en 0.5
+      zoomSnap: 0.5,
+      zoomDelta: 0.5
     }).setView([-12.0464, -77.0428], 13);
-
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> - RIS 1 ',
-detectRetina: true , 
-       crossOrigin: true
+      detectRetina: true, 
+      crossOrigin: true
     }).addTo(map);
 
     // ==========================================
@@ -236,7 +237,7 @@ detectRetina: true ,
     });
 
     // ==========================================
-    // 3. VARIABLES DE ESTADO Y UI
+    // 3. VARIABLES DE ESTADO, NOMBRES Y COLORES SINCRONIZADOS
     // ==========================================
     const risSelect = document.getElementById("ris-select");
     const eessSelect = document.getElementById("eess-select");
@@ -255,26 +256,35 @@ detectRetina: true ,
     let schoolMarkers = [];
     let currentHighlightedPolygon = null;
 
-    // DEFINICIÓN DE COLORES
+    // Función para normalizar nombres entre el CSV nuevo y el GeoJSON de polígonos
+    function normalizarClaveEess(nombre) {
+      const limpio = (nombre || "").trim().toUpperCase();
+      if (limpio === "C.S. MENTAL MIRONES BAJOS") return "C.S.M.C MENTAL MIRONES BAJOS";
+      if (limpio === "C.S. MENTAL SAN MARCOS") return "C.S.M.C MENTAL SAN MARCOS";
+      return limpio;
+    }
+
+    // DEFINICIÓN DE COLORES (Sincronizado con los 16 centros de la lista)
     const coloresPoligonos = {
-      "C.S. CONDE DE LA VEGA BAJA": "#FFB3BA", 
-      "C.S. JUAN PEREZ CARRANZA": "#FFDFBA",  
-      "C.S. MIRONES": "#FFFFBA",              
-      "C.S. MIRONES BAJO": "#BAFFC9",         
-      "C.S. SAN SEBASTIAN": "#BAE1FF",        
-      "C.S. UNIDAD VECINAL N° 3": "#E8BAFF",  
-      "C.S. VILLA MARIA PERPETUO SOCORRO": "#FFC4E1",
-      "P.S. JARDIN ROSA DE SANTA MARIA": "#D4FFBA",
+      "C.S. MIRONES BAJO": "#BAFFC9",
       "P.S. PALERMO": "#BAC4FF",
-      "P.S. RESCATE": "#FFDAB9",
+      "C.S. UNIDAD VECINAL N° 3": "#E8BAFF",
       "P.S. SANTA ROSA": "#E6E6FA",
-      "C.S. MENTAL MIRONES BAJOS": "#B3E5FC", 
-      "C.S. MENTAL SAN MARCOS": "#C8E6C9",    
-      "C.S. PATRUCO": "#FFE0B2",             
-      "C.E. ANTIRABICO ZOONOSIS": "#D1C4E9" 
+      "C.S. VILLA MARIA PERPETUO SOCORRO": "#FFC4E1",
+      "P.S. RESCATE": "#FFDAB9",
+      "C.S. MIRONES": "#FFFFBA",
+      "C.S. CONDE DE LA VEGA BAJA": "#FFB3BA",
+      "C.S. SAN SEBASTIAN": "#BAE1FF",
+      "C.S. JUAN PEREZ CARRANZA": "#FFDFBA",
+      "P.S. JARDIN ROSA DE SANTA MARIA": "#D4FFBA",
+      "C.S.M.C MENTAL MIRONES BAJOS": "#B3E5FC",
+      "C.S.M.C MENTAL SAN MARCOS": "#C8E6C9",
+      "C.S. PATRUCO": "#FFE0B2",
+      "C.E. ANTIRABICO ZOONOSIS": "#D1C4E9",
+      "COMEDOR CENTRO DE ALIMENTACION Y NUTRICION N°1": "#FFF59D"
     };
 
-    // DEFINICIÓN DE NÚMEROS
+    // DEFINICIÓN DE NÚMEROS (Del 1 al 16)
     const eessNumeros = {
       "C.S. MIRONES BAJO": 1,
       "P.S. PALERMO": 2,
@@ -287,10 +297,17 @@ detectRetina: true ,
       "C.S. SAN SEBASTIAN": 9,
       "C.S. JUAN PEREZ CARRANZA": 10,
       "P.S. JARDIN ROSA DE SANTA MARIA": 11,
-      "C.S. MENTAL MIRONES BAJOS": 12,
-      "C.S. MENTAL SAN MARCOS": 13,
+      "C.S.M.C MENTAL MIRONES BAJOS": 12,
+      "C.S.M.C MENTAL SAN MARCOS": 13,
       "C.S. PATRUCO": 14,
-      "C.E. ANTIRABICO ZOONOSIS": 15
+      "C.E. ANTIRABICO ZOONOSIS": 15,
+      "COMEDOR CENTRO DE ALIMENTACION Y NUTRICION N°1": 16
+    };
+
+    // NOMBRES PERSONALIZADOS PARA MOSTRAR EN LA LEYENDA Y FILTROS
+    const nombresLeyenda = {
+      "C.S.M.C MENTAL MIRONES BAJOS": "C.S.M.C Mirones Bajos",
+      "C.S.M.C MENTAL SAN MARCOS": "C.S.M.C San Marcos"
     };
 
     // ==========================================
@@ -327,60 +344,72 @@ detectRetina: true ,
     document.getElementById('show-mercados').addEventListener('change', function() {
       if (this.checked) map.addLayer(mercadosLayer); else map.removeLayer(mercadosLayer);
     });
+    document.getElementById('show-hospitales').addEventListener('change', function() {
+      if (this.checked) map.addLayer(hospitalesLayer); else map.removeLayer(hospitalesLayer);
+    });
 
     // MARCADORES MANUALES DE HOSPITALES
     const hospitalesData = [
-        { name: "Instituto Nacional de Ciencias Neurológicas", lat: -12.04610212959167, lon: -77.01607161787005 },
-        { name: "Instituto Nacional Materno Perinatal", lat: -12.05228067526418, lon: -77.02206919114937 },
-        { name: "Hospital Nacional 2 de Mayo", lat: -12.056569001304512, lon: -77.01604887277527 },
-        { name: "Hospital Nacional Arzobispo Loayza", lat: -12.049579411632719, lon: -77.04265725748083 }
+      { name: "Instituto Nacional de Ciencias Neurológicas", lat: -12.04610212959167, lon: -77.01607161787005 },
+      { name: "Instituto Nacional Materno Perinatal", lat: -12.05228067526418, lon: -77.02206919114937 },
+      { name: "Hospital Nacional 2 de Mayo", lat: -12.056569001304512, lon: -77.01604887277527 },
+      { name: "Hospital Nacional Arzobispo Loayza", lat: -12.049579411632719, lon: -77.04265725748083 }
     ];
 
     hospitalesData.forEach(hosp => {
-        L.marker([hosp.lat, hosp.lon], { icon: hospitalIcon })
-         .bindPopup(`<b>${hosp.name}</b><br><a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${hosp.lat},${hosp.lon}" target="_blank">Cómo llegar</a>`)
-         .addTo(hospitalesLayer);
+      L.marker([hosp.lat, hosp.lon], { icon: hospitalIcon })
+       .bindPopup(`<b>${hosp.name}</b><br><a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${hosp.lat},${hosp.lon}" target="_blank">Cómo llegar</a>`)
+       .addTo(hospitalesLayer);
     });
 
     // ==========================================
-    // 5. ICONOS DINÁMICOS Y LEYENDA AGRUPADA (Nuevas Funciones)
+    // 5. ICONOS DINÁMICOS Y LEYENDA HORIZONTAL
     // ==========================================
-    function obtenerIconoBase(nombreEess) {
-      if (nombreEess === "C.S. MENTAL MIRONES BAJOS" || nombreEess === "C.S. MENTAL SAN MARCOS") {
+ function obtenerIconoBase(nombreEess) {
+      const clave = normalizarClaveEess(nombreEess);
+      if (clave === "C.S.M.C MENTAL MIRONES BAJOS" || clave === "C.S.M.C MENTAL SAN MARCOS") {
         return `<img src="iconos/mentales.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
-      } else if (nombreEess === "C.E. ANTIRABICO ZOONOSIS") {
+      } else if (clave === "C.E. ANTIRABICO ZOONOSIS") {
         return `<img src="iconos/huellas10.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
-      } else if (nombreEess === "C.S. PATRUCO") {
+      } else if (clave === "C.S. PATRUCO") {
         return `<img src="iconos/hiv.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
+      } else if (clave === "COMEDOR CENTRO DE ALIMENTACION Y NUTRICION N°1") {
+        // NUEVA LÍNEA PARA EL COMEDOR
+        return `<img src="iconos/comedor_popular.jpg" style="width: 40px; height: 45px; border-radius: 50%; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
       }
       return `<img src="iconos/centros.png" style="width: 40px; height: 40px; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.3));">`;
     }
 
-    // NUEVA FUNCIÓN DE LEYENDA (MÁS COMPACTA Y ALINEADA A LA IZQUIERDA)
+
+    // FUNCIÓN DE LEYENDA HORIZONTAL CON SECCIÓN "COMEDORES"
     function actualizarLeyenda() {
       const contenedorLeyenda = document.getElementById('leyenda-contenido');
       if (!contenedorLeyenda) return;
 
-      // Agrupación de centros
-      const mentales = ["C.S. MENTAL MIRONES BAJOS", "C.S. MENTAL SAN MARCOS"];
+      // Agrupación de centros en 4 categorías
+      const mentales = ["C.S.M.C MENTAL MIRONES BAJOS", "C.S.M.C MENTAL SAN MARCOS"];
       const especializados = ["C.S. PATRUCO", "C.E. ANTIRABICO ZOONOSIS"];
-      const centrosSalud = Object.keys(coloresPoligonos).filter(k => !mentales.includes(k) && !especializados.includes(k));
+      const comedores = ["COMEDOR CENTRO DE ALIMENTACION Y NUTRICION N°1"];
+      const centrosSalud = Object.keys(coloresPoligonos).filter(
+        k => !mentales.includes(k) && !especializados.includes(k) && !comedores.includes(k)
+      );
 
-      // Ordenar por números
+      // Ordenar por números (1 al 16)
       centrosSalud.sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999));
       mentales.sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999));
       especializados.sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999));
+      comedores.sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999));
 
-      function buildGroup(title, keys) {
-        if(keys.length === 0) return '';
-        // Inusar ti grid tapno agbalin a naurnos a listaan a kasla ti ladawan
-        let html = `<div style="width: 100%; margin-bottom: 6px;">
-                      <h5 style="margin: 0 0 4px 0; font-size: 11px; color: #333; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 2px;">${title}</h5>
-                      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 2px 10px;">`;
+      function buildGroup(title, keys, flexProportion, minColWidth) {
+        if (keys.length === 0) return '';
+        
+        let html = `<div style="flex: ${flexProportion}; min-width: 200px;">
+                      <h5 style="margin: 0 0 8px 0; font-size: 11px; color: #1e293b; font-weight: bold; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; text-transform: uppercase;">${title}</h5>
+                      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(${minColWidth}, 1fr)); gap: 6px 12px;">`;
         
         for (let i = 0; i < keys.length; i++) {
           let key = keys[i];
-   let nombreCorto = key;
+          let nombreMostrar = nombresLeyenda[key] || key;
           let num = eessNumeros[key] || "";
           let color = coloresPoligonos[key];
           
@@ -388,13 +417,16 @@ detectRetina: true ,
           if (mentales.includes(key)) { rutaIcono = 'iconos/mentales.png'; } 
           else if (key === "C.E. ANTIRABICO ZOONOSIS") { rutaIcono = 'iconos/rabia.png'; } 
           else if (key === "C.S. PATRUCO") { rutaIcono = 'iconos/hiv.png'; }
+          else if (comedores.includes(key)) { rutaIcono = 'iconos/comedor_popular.jpg'; } // NUEVA LÍNEA
+  
+          
 
-          // Basbassit nga icons (14px) ken awan ti uneg a kahon
-          html +=
-            `<div style="display:flex; align-items:center; justify-content: flex-start; padding: 2px 0;">
-              <img src="${rutaIcono}" style="width: 14px; height: 14px; margin-right: 4px;">
-              <span style="background:${color}; width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center; margin-right: 6px; border: 1px solid #666; border-radius: 50%; font-size: 8px; font-weight:bold; color:#000;">${num}</span> 
-              <span style="font-size:10px; color:#111; line-height: 1;">${nombreCorto}</span>
+          // Se permite que el texto largo baje a la siguiente línea (white-space: normal)
+          html += `
+            <div style="display: flex; align-items: flex-start; justify-content: flex-start; padding: 2px 0;">
+              <img src="${rutaIcono}" style="width: 16px; height: 16px; margin-right: 4px; flex-shrink: 0; margin-top: 1px;">
+              <span style="background: ${color}; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; margin-right: 6px; border: 1px solid #475569; border-radius: 50%; font-size: 9px; font-weight: bold; color: #000; flex-shrink: 0; margin-top: 1px;">${num}</span> 
+              <span style="font-size: 10.5px; color: #0f172a; line-height: 1.25; font-weight: 500; white-space: normal; word-break: break-word;" title="${nombreMostrar}">${nombreMostrar}</span>
             </div>`;
         }
         html += `</div></div>`;
@@ -402,9 +434,10 @@ detectRetina: true ,
       }
 
       contenedorLeyenda.innerHTML = 
-        buildGroup("Centros y Puestos de Salud", centrosSalud) + 
-        buildGroup("CSMC", mentales) + 
-        buildGroup("Especializados", especializados);
+        buildGroup("Centros y Puestos de Salud", centrosSalud, "3.2", "200px") + 
+        buildGroup("Centro de Salud Mental Comunitario", mentales, "1", "180px") + 
+        buildGroup("Especializados", especializados, "1", "180px") +
+        buildGroup("Comedores", comedores, "1.1", "190px");
     }
 
     // ==========================================
@@ -419,7 +452,8 @@ detectRetina: true ,
             const [lat, lon] = row.COORDENADAS.split(",").map(coord => parseFloat(coord.trim()));
 
             if (!isNaN(lat) && !isNaN(lon)) {
-              const eess = row.EESS.trim();
+              const eess = normalizarClaveEess(row.EESS);
+              const nombrePopup = nombresLeyenda[eess] || eess;
               const num = eessNumeros[eess] || "";
               const colorFondo = coloresPoligonos[eess] || "#007e9d";
               const iconoDinamico = obtenerIconoBase(eess);
@@ -434,22 +468,25 @@ detectRetina: true ,
               });
 
               const marker = L.marker([lat, lon], { icon: combinedIcon })
-                .bindPopup(`<b>${row.EESS}</b><br>Dirección: ${row.DIRECCION} - ${row.DISTRITO}
-                <br><a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${row.COORDENADAS}" target="_blank">Cómo llegar</a>`)
+                .bindPopup(`<b>${nombrePopup}</b><br>Dirección: ${row.DIRECCION}<br>${row.DISTRITO}<br><a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${lat},${lon}" target="_blank">Cómo llegar</a>`)
                 .addTo(map); 
 
               const ris = row.RIS.trim();
               eessMarkers[eess] = { marker, lat, lon };
               if (!risEessMap[ris]) { risEessMap[ris] = []; }
-              risEessMap[ris].push(eess);
+              if (!risEessMap[ris].includes(eess)) {
+                risEessMap[ris].push(eess);
+              }
             }
           }
         });
 
         Object.keys(risEessMap).sort().forEach(ris => {
-          const option = document.createElement("option");
-          option.value = ris; option.textContent = ris;
-          risSelect.appendChild(option);
+          if (![...risSelect.options].some(opt => opt.value === ris)) {
+            const option = document.createElement("option");
+            option.value = ris; option.textContent = ris;
+            risSelect.appendChild(option);
+          }
         });
 
         // Activa la leyenda externa agrupada
@@ -465,14 +502,17 @@ detectRetina: true ,
       eessSelect.innerHTML = `<option value="">Seleccione EESS</option>`; eessSelect.disabled = !ris;
       distritoSelect.value = ""; resetDistritoHighlight(); resetHighlightedPolygon(); 
       if (ris && risEessMap[ris]) {
-        risEessMap[ris].sort().forEach(eess => {
-          const option = document.createElement("option"); option.value = eess; option.textContent = eess; eessSelect.appendChild(option);
+        risEessMap[ris].sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999)).forEach(eess => {
+          const option = document.createElement("option"); 
+          option.value = eess; 
+          option.textContent = nombresLeyenda[eess] || eess; 
+          eessSelect.appendChild(option);
         });
       }
     });
 
     eessSelect.addEventListener("change", function() {
-      const eess = this.value;
+      const eess = normalizarClaveEess(this.value);
       distritoSelect.value = ""; resetDistritoHighlight(); resetHighlightedPolygon();
       if (eess) {
         const data = eessMarkers[eess];
@@ -492,9 +532,9 @@ detectRetina: true ,
 
     function resetHighlightedPolygon() {
       if (currentHighlightedPolygon) {
-        const eessName = (currentHighlightedPolygon.feature.properties.EESS || "").trim().toUpperCase();
-        const colorOriginal = coloresPoligonos[eessName] || "#0096ba";
-        currentHighlightedPolygon.setStyle({ weight: 2, color: "#ffffff", fillColor: colorOriginal, fillOpacity: 0.45 });
+        const eessKey = normalizarClaveEess(currentHighlightedPolygon.feature.properties.EESS);
+        const colorOriginal = coloresPoligonos[eessKey] || "#0096ba";
+        currentHighlightedPolygon.setStyle({ weight: 1.5, color: "#000000", fillColor: colorOriginal, fillOpacity: 0.45 });
         currentHighlightedPolygon = null;
       }
     }
@@ -509,7 +549,6 @@ detectRetina: true ,
       resetDistritoHighlight(); resetHighlightedPolygon(); map.closePopup(); map.setView([-12.0464, -77.0428], 13);
     }
     clearFiltersBtn.addEventListener("click", clearAllFilters);
-    
 
     // CARGAR GEOJSON DE EESS
     fetch("DIRISLC_CENTROS_5.geojson")
@@ -517,25 +556,25 @@ detectRetina: true ,
       .then(geoData => {
         L.geoJSON(geoData, {
           style: feature => {
-            const nombrePoligono = (feature.properties.EESS || "").trim().toUpperCase();
-            const colorAsignado = coloresPoligonos[nombrePoligono] || "#0096ba";
+            const eessKey = normalizarClaveEess(feature.properties.EESS);
+            const colorAsignado = coloresPoligonos[eessKey] || "#0096ba";
             
             return { color: "#000000", fillColor: colorAsignado, weight: 1.5, fillOpacity: 0.45 };
           },
           onEachFeature: (feature, layer) => {
             if (feature.properties) {
-              const eessName = (feature.properties.EESS || "").trim();
-              const eessKey = eessName.toUpperCase();
+              const eessKey = normalizarClaveEess(feature.properties.EESS);
               const colorAsignado = coloresPoligonos[eessKey] || "#0096ba";
+              const nombreMostrar = nombresLeyenda[eessKey] || eessKey;
               
-              if (eessName) eessPolygons[eessName] = layer;
+              if (eessKey) eessPolygons[eessKey] = layer;
 
               let routeLink = '';
-              if (eessMarkers[eessName]) {
-                  const { lat, lon } = eessMarkers[eessName];
-                  routeLink = `<br><a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${lat},${lon}" target="_blank">Cómo llegar</a>`;
+              if (eessMarkers[eessKey]) {
+                const { lat, lon } = eessMarkers[eessKey];
+                routeLink = `<br><a href="https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${lat},${lon}" target="_blank">Cómo llegar</a>`;
               }              
-              const content = `<b>EESS:</b> ${eessName}<br><b>RIS:</b> ${feature.properties.RIS}<br><b>Distrito:</b> ${feature.properties.DISTRITO}<br><b>Ruta:</b> ${routeLink}`;
+              const content = `<b>EESS:</b> ${nombreMostrar}<br><b>RIS:</b> ${feature.properties.RIS}<br><b>Distrito:</b> ${feature.properties.DISTRITO}<br><b>Ruta:</b> ${routeLink}`;
               
               layer.bindTooltip(content, { permanent: false, direction: "auto", opacity: 0.9 });
               
@@ -544,18 +583,21 @@ detectRetina: true ,
               });
               
               layer.on("mouseout", function() { 
-                if (layer !== currentHighlightedPolygon) layer.setStyle({ weight: 3, color: "#000000", fillColor: colorAsignado, fillOpacity: 0.45 }); 
+                if (layer !== currentHighlightedPolygon) {
+                  const currentColor = coloresPoligonos[eessKey] || "#0096ba";
+                  layer.setStyle({ weight: 1.5, color: "#000000", fillColor: currentColor, fillOpacity: 0.45 }); 
+                }
               });
               
               layer.on("click", function() {
-                if (eessName) {
+                if (eessKey) {
                   let risFound = "";
                   for (const [ris, eessList] of Object.entries(risEessMap)) {
-                    if (eessList.includes(eessName)) { risFound = ris; break; }
+                    if (eessList.includes(eessKey)) { risFound = ris; break; }
                   }
                   if (risFound) {
                     risSelect.value = risFound; risSelect.dispatchEvent(new Event('change'));
-                    setTimeout(() => { eessSelect.value = eessName; eessSelect.dispatchEvent(new Event('change')); }, 100);
+                    setTimeout(() => { eessSelect.value = eessKey; eessSelect.dispatchEvent(new Event('change')); }, 100);
                   }
                 }
               });
@@ -607,7 +649,9 @@ detectRetina: true ,
         const div = document.createElement("div"); div.className = "school-result-item";
         div.innerHTML = `<div class="school-result-name">${item.nombre}</div><div class="school-result-district">${item.distrito || "Sin distrito"} · ${item.niveles.length} nivel(es)</div>`;
         div.addEventListener("click", function() {
-          schoolSearchInput.value = `${item.nombre} - ${item.distrito || "Sin distrito"}`; schoolSearchResults.classList.remove("active"); selectSchoolResult(item);
+          schoolSearchInput.value = `${item.nombre} - ${item.distrito || "Sin distrito"}`;
+          schoolSearchResults.classList.remove("active");
+          selectSchoolResult(item);
         });
         schoolSearchResults.appendChild(div);
       });
@@ -637,7 +681,11 @@ detectRetina: true ,
           style: { color: "#555555", weight: 1.5, fillOpacity: 0, fillColor: "#cccccc" },
           onEachFeature: (feature, layer) => { const distName = feature.properties.DISTRITO; if (distName) distritoPolygons[distName] = layer; }
         }).addTo(map);
-        Object.keys(distritoPolygons).sort().forEach(dist => { const option = document.createElement("option"); option.value = dist; option.textContent = dist; distritoSelect.appendChild(option); });
+        Object.keys(distritoPolygons).sort().forEach(dist => {
+          if (![...distritoSelect.options].some(opt => opt.value === dist)) {
+            const option = document.createElement("option"); option.value = dist; option.textContent = dist; distritoSelect.appendChild(option);
+          }
+        });
         distritoSelect.addEventListener("change", function() {
           const distSeleccionado = this.value; risSelect.value = ""; eessSelect.innerHTML = `<option value="">Seleccione EESS</option>`; eessSelect.disabled = true; resetHighlightedPolygon();
           distritosGeoLayer.eachLayer(layer => layer.setStyle({ color: "#555555", weight: 1.5, fillOpacity: 0, fillColor: "#cccccc" }));
@@ -711,23 +759,37 @@ detectRetina: true ,
         else { colorContainer.style.display = 'none'; toggleColorsBtn.textContent = 'Mostrar Paleta de Centros'; }
       });
 
-      Object.keys(coloresPoligonos).forEach(eess => {
+      // Ordenar la paleta del 1 al 16 igual que en la leyenda
+      const clavesOrdenadas = Object.keys(coloresPoligonos).sort((a, b) => (eessNumeros[a] || 999) - (eessNumeros[b] || 999));
+
+      clavesOrdenadas.forEach(eess => {
         const rowDiv = document.createElement('div');
-        rowDiv.style.display = 'flex'; rowDiv.style.alignItems = 'center'; rowDiv.style.justifyContent = 'space-between'; rowDiv.style.marginBottom = '8px'; rowDiv.style.fontSize = '12px'; rowDiv.style.fontWeight = '600'; rowDiv.style.color = '#334155';
+        rowDiv.style.display = 'flex'; rowDiv.style.alignItems = 'center'; rowDiv.style.justifyContent = 'space-between'; rowDiv.style.marginBottom = '8px'; rowDiv.style.fontSize = '11px'; rowDiv.style.fontWeight = '600'; rowDiv.style.color = '#334155'; rowDiv.style.gap = '6px';
         
-        const shortName = eess.replace("C.S. ", "").replace("P.S. ", "").replace("C.ESPECIALIZADO ", "").replace("C.E. ", "");
+        const displayTitle = nombresLeyenda[eess] || eess;
+        const shortName = displayTitle
+          .replace("C.S. ", "")
+          .replace("P.S. ", "")
+          .replace("C.ESPECIALIZADO ", "")
+          .replace("C.E. ", "");
+
         const label = document.createElement('span');
-        label.textContent = shortName.length > 20 ? shortName.substring(0, 18) + '...' : shortName;
+        label.textContent = `${eessNumeros[eess]}. ${shortName}`;
+        label.title = displayTitle;
+        label.style.lineHeight = '1.2';
+        label.style.wordBreak = 'break-word';
 
         const colorPicker = document.createElement('input');
         colorPicker.type = 'color'; colorPicker.value = coloresPoligonos[eess];
-        colorPicker.style.border = 'none'; colorPicker.style.width = '28px'; colorPicker.style.height = '28px'; colorPicker.style.cursor = 'pointer'; colorPicker.style.padding = '0'; colorPicker.style.background = 'transparent';
+        colorPicker.style.border = 'none'; colorPicker.style.width = '26px'; colorPicker.style.height = '26px'; colorPicker.style.cursor = 'pointer'; colorPicker.style.padding = '0'; colorPicker.style.background = 'transparent'; colorPicker.style.flexShrink = '0';
 
         colorPicker.addEventListener('input', (e) => {
           const newColor = e.target.value;
           coloresPoligonos[eess] = newColor;
 
-          if (eessPolygons[eess] && currentHighlightedPolygon !== eessPolygons[eess]) eessPolygons[eess].setStyle({ fillColor: newColor });
+          if (eessPolygons[eess] && currentHighlightedPolygon !== eessPolygons[eess]) {
+            eessPolygons[eess].setStyle({ fillColor: newColor });
+          }
 
           if (eessMarkers[eess]) {
             const num = eessNumeros[eess];
@@ -766,8 +828,7 @@ detectRetina: true ,
       });
     }
 
-
-// ==========================================
+    // ==========================================
     // BOTÓN PARA OCULTAR/MOSTRAR LEYENDA EXTERNA
     // ==========================================
     const btnToggleLeyenda = document.getElementById('btn-toggle-leyenda');
@@ -787,10 +848,8 @@ detectRetina: true ,
       });
     }
 
-
-
     // ==========================================
-    // NUEVO: CAPTURA DE PANTALLA ULTRA HD
+    // CAPTURA DE PANTALLA ULTRA HD
     // ==========================================
     const btnCapturaHD = document.getElementById('btn-captura-hd');
     
@@ -799,28 +858,23 @@ detectRetina: true ,
         const mapElement = document.getElementById('map');
         const btn = this;
         
-        // Cambiamos el texto para que el usuario sepa que está cargando
         btn.textContent = 'Generando captura (Espere)...';
         btn.disabled = true;
         btn.style.opacity = '0.7';
 
-        // Opciones de exportación de html-to-image
         htmlToImage.toPng(mapElement, {
           quality: 1.0,
-          pixelRatio: 2, // 2 = Doble resolución (Alta definición)
+          pixelRatio: 2,
           filter: function (node) {
-            // Esto oculta los botones de zoom (+/-) de la foto final
             return !node.classList || !node.classList.contains('leaflet-control-zoom');
           }
         })
         .then(function (dataUrl) {
-          // Crea un enlace invisible y fuerza la descarga
           const link = document.createElement('a');
           link.download = 'mapa_jurisdiccion_ris1.png';
           link.href = dataUrl;
           link.click();
 
-          // Restaura el botón
           btn.textContent = 'Descargar Mapa (Ultra HD)';
           btn.disabled = false;
           btn.style.opacity = '1';
